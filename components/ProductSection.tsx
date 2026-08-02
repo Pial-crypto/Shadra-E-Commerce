@@ -12,7 +12,11 @@ import {
   GitCompare,
   Star,
   ArrowRight,
+ 
 } from "lucide-react";
+import { ProductGrid } from "./ProductGrid";
+import Link from "next/link";
+import { ProductListing } from "./ProductListing";
 
 /* ============================================================
                         PRODUCT DATA
@@ -114,7 +118,7 @@ const products = [
 
 export default function ProductSection() {
   return (
-    <section className="py-24 bg-white">
+    <section id="trending" className="py-24 bg-white">
 
       {/* =======================================================
                         CONTAINER
@@ -144,13 +148,13 @@ export default function ProductSection() {
 
           </div>
 
-          <button className="flex items-center gap-2 font-semibold hover:text-yellow-500 transition">
-
-            View All
-
-            <ArrowRight size={18} />
-
-          </button>
+<Link
+  href="/trending"
+  className="flex items-center gap-2 font-semibold transition-colors hover:text-yellow-500"
+>
+  View All
+  <ArrowRight size={18} />
+</Link>
 
         </div>
 
@@ -158,127 +162,7 @@ export default function ProductSection() {
                     PRODUCT GRID
         ==================================================== */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-
-          {products.map((product) => (
-
-            <div
-              key={product.id}
-              className="bg-white rounded-3xl shadow hover:shadow-2xl transition duration-300 overflow-hidden group border"
-            >
-
-              {/* ============================================
-                        IMAGE AREA
-              ============================================= */}
-
-              <div className="relative h-72 bg-gray-100">
-
-                {/* Discount */}
-
-                <span className="absolute left-4 top-4 z-20 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold">
-
-                  {product.discount}
-
-                </span>
-
-                {/* Badge */}
-
-                <span className="absolute right-4 top-4 z-20 bg-yellow-500 text-black text-xs px-3 py-1 rounded-full font-bold">
-
-                  {product.badge}
-
-                </span>
-
-                {/* Hover Icons */}
-
-                <div className="absolute right-4 top-20 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition duration-300 z-20">
-
-                  <button className="bg-white rounded-full p-2 shadow hover:bg-yellow-500">
-                    <Heart size={18} />
-                  </button>
-
-                  <button className="bg-white rounded-full p-2 shadow hover:bg-yellow-500">
-                    <Eye size={18} />
-                  </button>
-
-                  <button className="bg-white rounded-full p-2 shadow hover:bg-yellow-500">
-                    <GitCompare size={18} />
-                  </button>
-
-                </div>
-
-                {/* Product Image */}
-
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  fill
-                  className="object-cover group-hover:scale-110 transition duration-500"
-                />
-
-              </div>
-
-              {/* ============================================
-                        PRODUCT INFO
-              ============================================= */}
-
-              <div className="p-6">
-
-                {/* Rating */}
-
-                <div className="flex gap-1 text-yellow-500">
-
-                  <Star size={16} fill="currentColor" />
-                  <Star size={16} fill="currentColor" />
-                  <Star size={16} fill="currentColor" />
-                  <Star size={16} fill="currentColor" />
-                  <Star size={16} fill="currentColor" />
-
-                </div>
-
-                {/* Title */}
-
-                <h3 className="font-semibold text-lg mt-4 line-clamp-2">
-
-                  {product.title}
-
-                </h3>
-
-                {/* Price */}
-
-                <div className="mt-4 flex items-center gap-3">
-
-                  <span className="text-2xl font-bold">
-
-                    ৳{product.price}
-
-                  </span>
-
-                  <span className="text-gray-400 line-through">
-
-                    ৳{product.oldPrice}
-
-                  </span>
-
-                </div>
-
-                {/* Add To Cart */}
-
-                <button className="mt-6 w-full h-12 rounded-xl bg-black text-white hover:bg-yellow-500 hover:text-black transition font-semibold flex items-center justify-center gap-2">
-
-                  <ShoppingCart size={18} />
-
-                  Add To Cart
-
-                </button>
-
-              </div>
-
-            </div>
-
-          ))}
-
-        </div>
+        <ProductListing></ProductListing>
 
       </div>
 

@@ -1,20 +1,49 @@
 "use client";
 
+
+
 import Image from "next/image";
 import Link from "next/link";
 
 import {
-  Search,
   Heart,
-  GitCompare,
   ShoppingCart,
-  User,
-  Menu,
-  ChevronDown,
 } from "lucide-react";
 
+import SearchBar from "./SearchBar";
+import { MegaMenu } from "./MegaMenu";
+const scrollToSection = (id: string) => {
+  const section = document.getElementById(id);
+
+  if (!section) return;
+
+  const y =
+    section.getBoundingClientRect().top +
+    window.pageYOffset -
+    100;
+
+  window.scrollTo({
+    top: y,
+    behavior: "smooth",
+  });
+};
 export default function Header() {
-  return (
+ const scrollToSection = (id: string) => {
+  const section = document.getElementById(id);
+
+  if (!section) return;
+
+  const y =
+    section.getBoundingClientRect().top +
+    window.pageYOffset -
+    100; // Header height
+
+  window.scrollTo({
+    top: y,
+    behavior: "smooth",
+  });
+};
+return (
     <>
       {/* ==========================================================
                           TOP BLACK BAR
@@ -62,159 +91,118 @@ export default function Header() {
                         MAIN HEADER
       =========================================================== */}
 
-      <header className="bg-white shadow-sm">
+   <header className="bg-white shadow-sm">
 
-        <div className="max-w-7xl mx-auto px-4 py-6 flex items-center gap-8">
+  <div className="max-w-7xl mx-auto px-4 py-6 flex items-center gap-8">
 
-          {/* ===========================================
-                          LOGO
-          =========================================== */}
+    {/* Logo */}
 
-          <Link href="/" className="shrink-0">
+    <Link href="/" className="shrink-0">
 
-            {/* Replace with your logo later */}
+      <Image
+        src="/logo.png"
+        alt="logo"
+        width={50}
+        height={50}
+      />
 
-            <Image
-              src="/logo.png"
-              alt="logo"
-              width={50}
-              height={50}
-            />
+    </Link>
 
-          </Link>
+    {/* Search */}
 
-          {/* ===========================================
-                        SEARCH AREA
-          =========================================== */}
+    <SearchBar />
 
-          <div className="flex flex-1">
+    {/* Icons */}
 
-            {/* Category */}
+    <div className="flex items-center gap-8">
 
-            <button className="border border-r-0 rounded-l-xl px-5 bg-gray-50 flex items-center gap-2">
+      {/* Wishlist */}
 
-              All Categories
+      <div className="relative cursor-pointer">
 
-              <ChevronDown size={16} />
+        <Heart size={23} />
 
-            </button>
+        <span className="absolute -top-2 -right-2 bg-yellow-500 rounded-full text-xs h-5 w-5 flex items-center justify-center">
 
-            {/* Search */}
+          0
 
-            <input
-              className="border-y flex-1 outline-none px-5"
-              placeholder="Search products..."
-            />
+        </span>
 
-            {/* Search Button */}
+      </div>
 
-            <button className="bg-black text-white rounded-r-xl px-6">
+      {/* Cart */}
 
-              <Search size={20} />
+      <div className="relative cursor-pointer">
 
-            </button>
+        <ShoppingCart size={23} />
 
-          </div>
+        <span className="absolute -top-2 -right-2 bg-yellow-500 rounded-full text-xs h-5 w-5 flex items-center justify-center">
 
-          {/* ===========================================
-                    HEADER ICONS
-          =========================================== */}
+          0
 
-          <div className="flex items-center gap-8">
+        </span>
 
-            {/* Wishlist */}
+      </div>
 
-            <div className="relative cursor-pointer">
+    </div>
 
-              <Heart size={23} />
+  </div>
 
-              <span className="absolute -top-2 -right-2 bg-yellow-500 rounded-full text-xs h-5 w-5 flex items-center justify-center">
-
-                0
-
-              </span>
-
-            </div>
-
-        
-
-            {/* Cart */}
-
-            <div className="relative cursor-pointer">
-
-              <ShoppingCart size={23} />
-
-              <span className="absolute -top-2 -right-2 bg-yellow-500 rounded-full text-xs h-5 w-5 flex items-center justify-center">
-
-                0
-
-              </span>
-
-            </div>
-
-          
-
-          </div>
-
-        </div>
-
-      </header>
+</header>
 
       {/* ==========================================================
                         NAVIGATION BAR
       =========================================================== */}
 
-      <nav className="bg-white border-t">
+     <nav className="bg-white border-t">
 
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+  <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
 
-          {/* =======================================
-                ALL CATEGORY BUTTON
-          ======================================== */}
+    {/* =======================================
+            ALL CATEGORY BUTTON
+    ======================================== */}
 
-          <button className="bg-yellow-500 hover:bg-yellow-600 text-white h-11 rounded-lg px-5 flex items-center gap-3 font-semibold">
+    <MegaMenu />
 
-            <Menu size={18} />
+    {/* =======================================
+              NAV LINKS
+    ======================================== */}
 
-            All Categories
+    <div className="hidden lg:flex items-center gap-10 text-sm font-semibold">
 
-          </button>
+      {/* <Link
+        href="/"
+        className="transition hover:text-yellow-500"
+      >
+        Home
+      </Link> */}
 
-          {/* =======================================
-                  NAV LINKS
-          ======================================== */}
+      <button
+        onClick={() => scrollToSection("trending")}
+        className="cursor-pointer transition hover:text-yellow-500"
+      >
+        Trending
+      </button>
 
-          <div className="hidden lg:flex gap-10 text-sm font-semibold">
+      <Link
+        href="/products"
+        className="transition hover:text-yellow-500"
+      >
+        Products
+      </Link>
 
-            <Link href="/">Home</Link>
+      <button
+        onClick={() => scrollToSection("contact")}
+        className="cursor-pointer transition hover:text-yellow-500"
+      >
+        Contact
+      </button>
 
-            <Link href="/">Shop</Link>
+    </div>
 
-            <Link href="/">Deals</Link>
+  </div>
 
-            <Link href="/">New Arrivals</Link>
-
-            <Link href="/">Best Sellers</Link>
-
-            <Link href="/">Brands</Link>
-
-            <Link href="/">Contact</Link>
-
-          </div>
-
-          {/* =======================================
-                  SHADRA CLUB BUTTON
-          ======================================== */}
-
-          <button className="bg-black hover:bg-zinc-800 text-white rounded-lg px-6 h-11">
-
-            👑 Shadra Club
-
-          </button>
-
-        </div>
-
-      </nav>
+</nav>
     </>
   );
 }

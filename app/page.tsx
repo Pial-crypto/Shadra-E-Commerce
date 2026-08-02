@@ -28,10 +28,10 @@ export default function Home() {
 
       {/* ================= PRODUCTS ================= */}
       <ProductSection />
-      <DealsBanner />
-      <FlashSale />
-      <Brands></Brands>
-      <TrendingProducts />
+      {/* <DealsBanner /> */}
+      {/* <FlashSale /> */}
+      {/* <Brands></Brands> */}
+      {/* <TrendingProducts /> */}
       <Testimonials />
       <Newsletter />
       <Footer />

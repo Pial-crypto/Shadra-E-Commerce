@@ -18,7 +18,7 @@ import {
 
 export default function Newsletter() {
   return (
-    <section className="py-24 bg-black text-white overflow-hidden">
+    <section id="contact" className="py-24 bg-black text-white overflow-hidden">
 
       {/* ======================================================
                         CONTAINER

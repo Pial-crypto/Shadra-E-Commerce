@@ -3,6 +3,8 @@
 /* ============================================================
                         IMPORTS
 ============================================================ */
+import Link from "next/link";
+
 
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -61,6 +63,8 @@ const categories = [
     items: "45 Products",
   },
 ];
+const getSlug = (title: string) =>
+  title.toLowerCase().replace(/\s+/g, "-");
 
 /* ============================================================
                         COMPONENT
@@ -94,13 +98,13 @@ export default function Categories() {
 
           </div>
 
-          <button className="flex items-center gap-2 font-semibold hover:text-yellow-500 transition">
+          {/* <button className="flex items-center gap-2 font-semibold hover:text-yellow-500 transition">
 
             View All
 
             <ArrowRight size={18} />
 
-          </button>
+          </button> */}
 
         </div>
 
@@ -112,61 +116,43 @@ export default function Categories() {
 
           {categories.map((category, index) => (
 
-            <div
-              key={index}
-              className="bg-white rounded-3xl shadow hover:shadow-2xl transition duration-300 overflow-hidden group cursor-pointer"
-            >
+           <Link
+  key={index}
+  href={`/category/${getSlug(category.title)}`}
+  className="bg-white rounded-3xl shadow hover:shadow-2xl transition duration-300 overflow-hidden group block cursor-pointer"
+>
+  {/* Card */}
 
-              {/* ====================================
-                        IMAGE AREA
-              ===================================== */}
+  <div className="relative h-56 overflow-hidden">
 
-              <div className="relative h-56 overflow-hidden">
+    <Image
+      src={category.image}
+      alt={category.title}
+      fill
+      className="object-cover group-hover:scale-110 transition duration-500"
+    />
 
-                <Image
-                  src={category.image}
-                  alt={category.title}
-                  fill
-                  className="object-cover group-hover:scale-110 transition duration-500"
-                />
+    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition" />
 
-                {/* Dark Overlay */}
+  </div>
 
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition" />
+  <div className="p-6">
 
-              </div>
+    <h3 className="text-xl font-bold">
+      {category.title}
+    </h3>
 
-              {/* ====================================
-                        CONTENT
-              ===================================== */}
+    <p className="mt-2 text-gray-500">
+      {category.items}
+    </p>
 
-              <div className="p-6">
+    <div className="mt-5 flex items-center gap-2 font-semibold text-yellow-500 transition-all group-hover:gap-4">
+      Explore
+      <ArrowRight size={18} />
+    </div>
 
-                <h3 className="text-xl font-bold">
-
-                  {category.title}
-
-                </h3>
-
-                <p className="text-gray-500 mt-2">
-
-                  {category.items}
-
-                </p>
-
-                {/* Explore Button */}
-
-                <button className="mt-5 text-yellow-500 font-semibold flex items-center gap-2 group-hover:gap-4 transition-all">
-
-                  Explore
-
-                  <ArrowRight size={18} />
-
-                </button>
-
-              </div>
-
-            </div>
+  </div>
+</Link>
 
           ))}
 

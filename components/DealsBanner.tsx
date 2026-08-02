@@ -37,7 +37,7 @@ const deals = [
 
 export default function DealsBanner() {
   return (
-    <section className="py-20 bg-[#f7f7f7]">
+    <section  className="py-20 bg-[#f7f7f7]">
 
       {/* ==========================================
                     CONTAINER

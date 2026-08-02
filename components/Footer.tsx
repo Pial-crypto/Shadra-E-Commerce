@@ -17,6 +17,7 @@ import {
   FaFacebookF,
   FaInstagram,
   FaYoutube,
+  FaWhatsapp,
 } from "react-icons/fa";
 
 /* ============================================================
@@ -39,123 +40,318 @@ export default function Footer() {
                         COMPANY
           =================================================== */}
 
-          <div className="lg:col-span-2">
+        {/* ==================================================
+                    COMPANY
+=================================================== */}
 
-            <h2 className="text-4xl font-black text-yellow-500">
-              SHADRA
-            </h2>
+<div className="lg:col-span-2">
 
-            <p className="text-gray-400 mt-6 leading-8">
-              Shadra Gadgets is your trusted destination for
-              original gadgets, mobile accessories, smart
-              devices, chargers, power banks and lifestyle
-              electronics with fast delivery across Bangladesh.
-            </p>
+  <Link href="/" className="inline-block">
 
-            {/* Contact */}
+    <h2 className="text-4xl font-black text-yellow-500">
+      SHADRA
+    </h2>
 
-            <div className="space-y-4 mt-10">
+  </Link>
 
-              <div className="flex gap-3">
-                <MapPin className="text-yellow-500" />
-                <span className="text-gray-400">
-                  Dhaka, Bangladesh
-                </span>
-              </div>
+  <p className="mt-6 max-w-md leading-8 text-gray-400">
 
-              <div className="flex gap-3">
-                <Phone className="text-yellow-500" />
-                <span className="text-gray-400">
-                  +880 1XXXXXXXXX
-                </span>
-              </div>
+    Shadra Gadgets is your trusted destination for original gadgets,
+    mobile accessories, power banks, chargers, audio devices and
+    lifestyle electronics with fast delivery all over Bangladesh.
 
-              <div className="flex gap-3">
-                <Mail className="text-yellow-500" />
-                <span className="text-gray-400">
-                  info@shadra.com
-                </span>
-              </div>
+  </p>
 
-              <div className="flex gap-3">
-                <Clock className="text-yellow-500" />
-                <span className="text-gray-400">
-                  Sat - Thu : 9AM - 10PM
-                </span>
-              </div>
+  {/* Contact */}
 
-            </div>
+  <div className="mt-10 space-y-5">
 
-          </div>
+    <div className="flex items-center gap-3">
+
+      <MapPin
+        size={20}
+        className="text-yellow-500 shrink-0"
+      />
+
+      <span className="text-gray-400">
+        Dhaka, Bangladesh
+      </span>
+
+    </div>
+
+    <Link
+      href="tel:+8801683700950"
+      className="flex items-center gap-3 text-gray-400 hover:text-yellow-500 transition"
+    >
+
+      <Phone
+        size={20}
+        className="text-yellow-500 shrink-0"
+      />
+
+      <span>
+        +880 1683-700950
+      </span>
+
+    </Link>
+
+    <Link
+      href="mailto:shahiemahmud@gmail.com"
+      className="flex items-center gap-3 text-gray-400 hover:text-yellow-500 transition"
+    >
+
+      <Mail
+        size={20}
+        className="text-yellow-500 shrink-0"
+      />
+
+      <span>
+        shahiemahmud@gmail.com
+      </span>
+
+    </Link>
+
+    <Link
+      href="https://wa.me/8801683700950"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-3 text-gray-400 hover:text-yellow-500 transition"
+    >
+
+      <Phone
+        size={20}
+        className="text-yellow-500 shrink-0"
+      />
+
+      <span>
+        WhatsApp Support
+      </span>
+
+    </Link>
+
+  </div>
+
+</div>
 
           {/* ==================================================
                         SHOP
           =================================================== */}
 
-          <div>
+         {/* ==================================================
+                    SHOP
+=================================================== */}
 
-            <h3 className="font-bold text-xl mb-6">
-              Shop
-            </h3>
+<div>
 
-            <ul className="space-y-4 text-gray-400">
+  <h3 className="mb-6 text-xl font-bold">
 
-              <li><Link href="#">Power Banks</Link></li>
-              <li><Link href="#">Chargers</Link></li>
-              <li><Link href="#">Headphones</Link></li>
-              <li><Link href="#">Earbuds</Link></li>
-              <li><Link href="#">Smart Watches</Link></li>
-              <li><Link href="#">Accessories</Link></li>
+    Shop
 
-            </ul>
+  </h3>
 
-          </div>
+  <ul className="space-y-4">
+
+    <li>
+
+      <Link
+        href="/products"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        All Products
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/category/power-banks"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Power Banks
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/category/chargers"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Chargers
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/category/headphones"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Headphones
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/category/earbuds"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Earbuds
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/trending"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Trending Products
+      </Link>
+
+    </li>
+
+  </ul>
+
+</div>
 
           {/* ==================================================
                         CUSTOMER
           =================================================== */}
 
-          <div>
+        {/* ==================================================
+                    CUSTOMER
+=================================================== */}
 
-            <h3 className="font-bold text-xl mb-6">
-              Customer
-            </h3>
+<div>
 
-            <ul className="space-y-4 text-gray-400">
+  <h3 className="mb-6 text-xl font-bold">
 
-              <li><Link href="#">My Account</Link></li>
-              <li><Link href="#">Track Order</Link></li>
-              <li><Link href="#">Wishlist</Link></li>
-              <li><Link href="#">Returns</Link></li>
-              <li><Link href="#">FAQs</Link></li>
-              <li><Link href="#">Support</Link></li>
+    Customer
 
-            </ul>
+  </h3>
 
-          </div>
+  <ul className="space-y-4">
+
+    <li>
+
+      <Link
+        href="/cart"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Cart
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/wishlist"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Wishlist
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/shipping-policy"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Shipping Policy
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/refund-policy"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Refund Policy
+      </Link>
+
+    </li>
+
+  </ul>
+
+</div>
 
           {/* ==================================================
                         INFORMATION
           =================================================== */}
 
-          <div>
+          {/* ==================================================
+                    INFORMATION
+=================================================== */}
 
-            <h3 className="font-bold text-xl mb-6">
-              Information
-            </h3>
+<div>
 
-            <ul className="space-y-4 text-gray-400">
+  <h3 className="mb-6 text-xl font-bold">
 
-              <li><Link href="#">About Us</Link></li>
-              <li><Link href="#">Contact</Link></li>
-              <li><Link href="#">Privacy Policy</Link></li>
-              <li><Link href="#">Terms & Conditions</Link></li>
-              <li><Link href="#">Refund Policy</Link></li>
-              <li><Link href="#">Shipping Policy</Link></li>
+    Information
 
-            </ul>
+  </h3>
 
-          </div>
+  <ul className="space-y-4">
+
+    <li>
+
+      <Link
+        href="/about"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        About Us
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/contact"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Contact Us
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/privacy-policy"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Privacy Policy
+      </Link>
+
+    </li>
+
+    <li>
+
+      <Link
+        href="/terms-and-conditions"
+        className="text-gray-400 hover:text-yellow-500 transition"
+      >
+        Terms & Conditions
+      </Link>
+
+    </li>
+
+  </ul>
+
+</div>
 
         </div>
 
@@ -163,69 +359,73 @@ export default function Footer() {
                     PAYMENT + SOCIAL
         ======================================================= */}
 
-        <div className="border-t border-zinc-800 mt-16 pt-10 flex flex-col lg:flex-row justify-between items-center gap-10">
+  {/* ======================================================
+                SOCIAL
+====================================================== */}
 
-          {/* Payment */}
+<div className="mt-16 border-t border-zinc-800 pt-10 flex justify-center lg:justify-end">
 
-          <div>
+  <div>
 
-            <h4 className="font-semibold mb-4">
-              Secure Payments
-            </h4>
+    <h4 className="mb-4 text-center lg:text-left font-semibold">
 
-            <div className="flex flex-wrap gap-3">
+      Follow Us
 
-              {[
-                "Visa",
-                "MasterCard",
-                "bKash",
-                "Nagad",
-                "Rocket",
-              ].map((item) => (
+    </h4>
 
-                <div
-                  key={item}
-                  className="bg-white text-black px-5 py-3 rounded-xl text-sm font-semibold"
-                >
-                  {item}
-                </div>
+    {/* Social Icons */}
 
-              ))}
+    <div className="flex gap-4">
 
-            </div>
+      {/* Facebook */}
 
-          </div>
+      <Link
+        href="https://www.facebook.com/profile.php?id=61592716442009"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 transition hover:bg-yellow-500 hover:text-black"
+      >
+        <FaFacebookF size={20} />
+      </Link>
 
-          {/* Social */}
+      {/* Instagram */}
 
-          <div>
+      <Link
+        href="https://instagram.com/shadragadgets"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 transition hover:bg-yellow-500 hover:text-black"
+      >
+        <FaInstagram size={20} />
+      </Link>
 
-            <h4 className="font-semibold mb-4">
-              Follow Us
-            </h4>
+      {/* YouTube */}
 
-            <div className="flex gap-4">
+      <Link
+        href="https://youtube.com/@shadragadgets"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 transition hover:bg-yellow-500 hover:text-black"
+      >
+        <FaYoutube size={20} />
+      </Link>
 
-              {[
-                FaFacebookF,
-                FaInstagram,
-                FaYoutube,
-              ].map((Icon, index) => (
+      {/* WhatsApp */}
 
-                <button
-                  key={index}
-                  className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-yellow-500 hover:text-black transition flex items-center justify-center"
-                >
-                  <Icon size={20} />
-                </button>
+      <Link
+        href="https://wa.me/8801683700950"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 transition hover:bg-yellow-500 hover:text-black"
+      >
+        <FaWhatsapp size={20} />
+      </Link>
 
-              ))}
+    </div>
 
-            </div>
+  </div>
 
-          </div>
-
-        </div>
+</div>
 
       </div>
 
@@ -235,31 +435,49 @@ export default function Footer() {
 
       <div className="border-t border-zinc-800">
 
-        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm">
+  <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-4 py-6 text-center text-sm text-gray-500 md:flex-row">
 
-          <p>
-            © 2026 Shadra Gadgets. All Rights Reserved.
-          </p>
+    <p>
 
-          <div className="flex gap-6 mt-4 md:mt-0">
+      © {new Date().getFullYear()} Shadra Gadgets. All Rights Reserved.
 
-            <Link href="#">
-              Privacy
-            </Link>
+    </p>
 
-            <Link href="#">
-              Terms
-            </Link>
+    <div className="flex flex-wrap items-center gap-6">
 
-            <Link href="#">
-              Cookies
-            </Link>
+      <Link
+        href="/privacy-policy"
+        className="transition hover:text-yellow-500"
+      >
+        Privacy Policy
+      </Link>
 
-          </div>
+      <Link
+        href="/terms-and-conditions"
+        className="transition hover:text-yellow-500"
+      >
+        Terms
+      </Link>
 
-        </div>
+      <Link
+        href="/refund-policy"
+        className="transition hover:text-yellow-500"
+      >
+        Refund
+      </Link>
 
-      </div>
+      <Link
+        href="/shipping-policy"
+        className="transition hover:text-yellow-500"
+      >
+        Shipping
+      </Link>
+
+    </div>
+
+  </div>
+
+</div>
 
     </footer>
   );

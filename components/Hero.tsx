@@ -62,6 +62,18 @@ const slides = [
 
     badge: "BEST SELLERS",
   },
+{
+  title: "PREMIUM",
+
+  highlight: "GADGETS",
+
+  description:
+    "Discover original gadgets with fast delivery across Bangladesh.",
+
+  image: "/cover.png",
+
+  badge: "BEST SELLERS",
+}
 ];
 
 /* ============================================================
@@ -142,25 +154,7 @@ export default function Hero() {
 
                     </p>
 
-                    {/* Buttons */}
-
-                    <div className="mt-10 flex gap-5">
-
-                      <button className="bg-yellow-500 hover:bg-yellow-600 transition px-8 py-4 rounded-xl font-bold flex items-center gap-2">
-
-                        Shop Now
-
-                        <ArrowRight size={18} />
-
-                      </button>
-
-                      <button className="border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black transition px-8 py-4 rounded-xl">
-
-                        Explore
-
-                      </button>
-
-                    </div>
+                  
 
                   </div>
 
