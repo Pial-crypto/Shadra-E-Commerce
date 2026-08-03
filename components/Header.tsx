@@ -49,43 +49,72 @@ return (
                           TOP BLACK BAR
       =========================================================== */}
 
-      <div className="bg-black text-white text-sm">
+  <div className="bg-black text-white">
 
-        <div className="max-w-7xl mx-auto px-4 h-10 flex items-center justify-between">
+  <div
+    className="
+      max-w-7xl
+      mx-auto
 
-          {/* Left */}
+      px-4
 
-          <div className="flex items-center gap-2">
+      h-10
+      sm:h-10
+      md:h-11
 
-            <span>🚚</span>
+      flex
+      items-center
+      justify-center
+      lg:justify-between
+    "
+  >
 
-            <p>
-              Fast Delivery All Over Bangladesh
-            </p>
+    {/* Left */}
 
-          </div>
+    <div
+      className="
+        flex
+        items-center
+        gap-2
 
-          {/* Middle */}
+        text-[11px]
+        sm:text-xs
+        md:text-sm
 
-          <div className="hidden lg:block">
+        font-medium
+        text-center
+      "
+    >
 
-            <p className="text-yellow-400 font-medium">
+      <span className="text-xs sm:text-sm">
+        🚚
+      </span>
 
-              🔥 Summer Sale!
-              <span className="text-white ml-2">
-                Up to 30% OFF
-              </span>
+      <p className="truncate">
+        Fast Delivery All Over Bangladesh
+      </p>
 
-            </p>
+    </div>
 
-          </div>
+    {/* Desktop Offer */}
 
-          {/* Right */}
+    <div className="hidden lg:block">
 
-       
-        </div>
+      <p className="font-medium text-yellow-400">
 
-      </div>
+        🔥 Summer Sale!
+
+        <span className="ml-2 text-white">
+          Up to 30% OFF
+        </span>
+
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
 
       {/* ==========================================================
                         MAIN HEADER
@@ -122,7 +151,9 @@ return (
 
         <Heart size={23} />
 
-        <span className="absolute -top-2 -right-2 bg-yellow-500 rounded-full text-xs h-5 w-5 flex items-center justify-center">
+        <span className="absolute -top-2 -right-2 bg-yellow-500 rounded-full text-xs h-5 w-5 flex items-center justify-center
+        
+        ">
 
           0
 
@@ -154,49 +185,62 @@ return (
                         NAVIGATION BAR
       =========================================================== */}
 
-     <nav className="bg-white border-t">
+<nav className="border-t bg-white">
 
-  <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+  <div className="max-w-7xl mx-auto px-4 py-3">
 
-    {/* =======================================
-            ALL CATEGORY BUTTON
-    ======================================== */}
+    <div className="flex items-center gap-3">
 
-    <MegaMenu />
+      {/* =========================
+            Categories
+      ========================== */}
 
-    {/* =======================================
-              NAV LINKS
-    ======================================== */}
+      <div className="shrink-0">
 
-    <div className="hidden lg:flex items-center gap-10 text-sm font-semibold">
+        <MegaMenu />
 
-      {/* <Link
-        href="/"
-        className="transition hover:text-yellow-500"
+      </div>
+
+      {/* =========================
+            Navigation
+      ========================== */}
+
+      <div
+        className="
+          flex
+          flex-1
+          items-center
+          justify-evenly
+
+          text-xs
+          sm:text-sm
+
+          font-semibold
+        "
       >
-        Home
-      </Link> */}
 
-      <button
-        onClick={() => scrollToSection("trending")}
-        className="cursor-pointer transition hover:text-yellow-500"
-      >
-        Trending
-      </button>
+        <button
+          onClick={() => scrollToSection("trending")}
+          className="whitespace-nowrap transition hover:text-yellow-500"
+        >
+          Trending
+        </button>
 
-      <Link
-        href="/products"
-        className="transition hover:text-yellow-500"
-      >
-        Products
-      </Link>
+        <Link
+          href="/products"
+          className="whitespace-nowrap transition hover:text-yellow-500"
+        >
+          Products
+        </Link>
 
-      <button
-        onClick={() => scrollToSection("contact")}
-        className="cursor-pointer transition hover:text-yellow-500"
-      >
-        Contact
-      </button>
+        <button
+          onClick={() => scrollToSection("contact")}
+          className="whitespace-nowrap transition hover:text-yellow-500"
+        >
+          Contact
+        </button>
+
+      </div>
 
     </div>
 

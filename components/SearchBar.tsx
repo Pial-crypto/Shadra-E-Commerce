@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronDown, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/slugify";
 
@@ -48,7 +48,6 @@ export default function SearchBar() {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
-
   const [open, setOpen] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -65,8 +64,7 @@ export default function SearchBar() {
 
     window.addEventListener("click", handleClick);
 
-    return () =>
-      window.removeEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
   }, []);
 
   const filtered = useMemo(() => {
@@ -88,26 +86,41 @@ export default function SearchBar() {
 
   return (
     <div
-    
       ref={wrapperRef}
-      className="relative flex flex-1 rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-200 focus-within:border-yellow-500 focus-within:ring-2 focus-within:ring-yellow-200"
+      className="
+  relative
 
-    //   className="relative flex flex-1 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-200 focus-within:border-yellow-500 focus-within:ring-2 focus-within:ring-yellow-200"
+  flex
+  flex-1
+  items-center
+
+  w-full
+  min-w-0
+
+  overflow-visible
+
+  rounded-xl
+  lg:rounded-2xl
+
+  border
+  border-zinc-200
+
+  bg-white
+
+  shadow-sm
+  hover:shadow-md
+
+  transition-all
+  duration-200
+
+  focus-within:border-yellow-500
+  focus-within:ring-2
+  focus-within:ring-yellow-200
+"
     >
-      {/* Category */}
-
-      {/* <button className="border border-r-0 rounded-l-xl px-5 bg-gray-50 flex items-center gap-2">
-
-        All Categories
-
-        <ChevronDown size={16} />
-
-      </button> */}
-
-      {/* Search */}
+      {/* Search Input */}
 
       <input
-      
         value={query}
         onFocus={() => setOpen(true)}
         onChange={(e) => {
@@ -120,7 +133,25 @@ export default function SearchBar() {
           }
         }}
         placeholder="Search products..."
-        className="border-y flex-1 px-5 outline-none"
+        className="
+          h-10
+          sm:h-10
+          md:h-11
+          lg:h-12
+
+          flex-1
+          min-w-0
+
+          px-3
+          sm:px-4
+          md:px-5
+          lg:px-6
+
+          text-sm
+          md:text-base
+
+          outline-none
+        "
       />
 
       {/* Search Button */}
@@ -131,7 +162,34 @@ export default function SearchBar() {
 
           goToProduct(query);
         }}
-        className="bg-black text-white rounded-r-xl px-6"
+        className="
+          flex
+          items-center
+          justify-center
+
+          h-10
+          w-11
+
+          sm:h-10
+          sm:w-11
+
+          md:h-11
+          md:w-12
+
+          lg:h-12
+          lg:w-14
+
+          rounded-r-xl
+          lg:rounded-r-2xl
+
+          bg-black
+          text-white
+
+          transition
+
+          hover:bg-yellow-500
+          hover:text-black
+        "
       >
         <Search size={20} />
       </button>
@@ -139,49 +197,80 @@ export default function SearchBar() {
       {/* Suggestions */}
 
       {open && filtered.length > 0 && (
+        <div
+          className="
+            absolute
 
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border shadow-2xl overflow-hidden z-50">
+            top-full
+            left-0
+            right-0
 
+            z-50
+
+            mt-2
+
+            overflow-hidden
+
+            rounded-xl
+            lg:rounded-2xl
+
+            border
+
+            bg-white
+
+            shadow-2xl
+          "
+        >
           {filtered.map((product) => (
-
             <button
               key={product.id}
-              onClick={() =>
-                goToProduct(product.title)
-              }
-              className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 transition"
-            >
+              onClick={() => goToProduct(product.title)}
+              className="
+                flex
+                w-full
+                items-center
+                gap-3
+                p-3
 
+                sm:gap-4
+                sm:p-4
+
+                transition
+                hover:bg-gray-50
+              "
+            >
               <Image
                 src={product.image}
                 alt={product.title}
                 width={55}
                 height={55}
-                className="rounded-lg object-cover"
+                className="
+                  h-12
+                  w-12
+
+                  sm:h-14
+                  sm:w-14
+
+                  rounded-lg
+                  object-cover
+                "
               />
 
-              <div className="text-left flex-1">
+              <div className="min-w-0 flex-1 text-left">
 
-                <p className="font-semibold">
-
+                <p className="truncate font-semibold text-sm sm:text-base">
                   {product.title}
-
                 </p>
 
-                <p className="text-yellow-500 font-bold">
-
+                <p className="mt-1 font-bold text-yellow-500">
                   ৳{product.price}
-
                 </p>
 
               </div>
 
             </button>
-
           ))}
-
         </div>
-
       )}
     </div>
   );

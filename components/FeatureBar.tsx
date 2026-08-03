@@ -57,19 +57,27 @@ export default function FeatureBar() {
     <section className="relative z-20">
 
       {/* ======================================================
-                    WHITE FLOATING CARD
+                    FLOATING CARD
       ======================================================= */}
 
       <div className="max-w-7xl mx-auto -mt-10 px-4">
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100">
+        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
 
           {/* ==================================================
-                        FEATURES GRID
+                        FEATURES
           =================================================== */}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+          <div
+            className="
+              grid
 
+              grid-cols-1
+              sm:grid-cols-2
+              md:grid-cols-3
+              lg:grid-cols-5
+            "
+          >
             {features.map((item, index) => {
 
               const Icon = item.icon;
@@ -78,34 +86,88 @@ export default function FeatureBar() {
 
                 <div
                   key={index}
-                  className="flex items-center gap-4 p-6 hover:bg-gray-50 transition duration-300 border-b lg:border-b-0 lg:border-r last:border-r-0"
+                  className="
+                    flex
+                    items-center
+                    gap-4
+
+                    p-5
+                    sm:p-6
+
+                    transition
+                    duration-300
+
+                    hover:bg-gray-50
+
+                    border-b
+                    sm:border-r
+
+                    lg:border-b-0
+
+                    last:border-b-0
+                    lg:last:border-r-0
+                  "
                 >
 
-                  {/* Icon */}
+                  {/* ==========================
+                              ICON
+                  =========================== */}
 
-                  <div className="h-14 w-14 rounded-full bg-yellow-100 flex items-center justify-center">
+                  <div
+                    className="
+                      flex
+                      h-12
+                      w-12
+                      shrink-0
+
+                      items-center
+                      justify-center
+
+                      rounded-full
+
+                      bg-yellow-100
+
+                      sm:h-14
+                      sm:w-14
+                    "
+                  >
 
                     <Icon
-                      size={26}
+                      size={24}
                       className="text-yellow-600"
                     />
 
                   </div>
 
-                  {/* Text */}
+                  {/* ==========================
+                              TEXT
+                  =========================== */}
 
-                  <div>
+                  <div className="min-w-0">
 
-                    <h3 className="font-semibold text-gray-900">
+                    <h3
+                      className="
+                        text-sm
+                        sm:text-base
 
+                        font-semibold
+                        text-gray-900
+                      "
+                    >
                       {item.title}
-
                     </h3>
 
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p
+                      className="
+                        mt-1
 
+                        text-xs
+                        sm:text-sm
+
+                        text-gray-500
+                      "
+                    >
                       {item.description}
-
                     </p>
 
                   </div>
@@ -115,7 +177,6 @@ export default function FeatureBar() {
               );
 
             })}
-
           </div>
 
         </div>
