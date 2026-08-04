@@ -1,5 +1,12 @@
 // app/product/[slug]/page.tsx
+import ProductGallery from "@/components/ProductGallery";
 
+const images = [
+  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200",
+  "https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?w=1200",
+  "https://images.unsplash.com/photo-1545127398-14699f92334b?w=1200",
+  "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=1200",
+];
 import Image from "next/image";
 
 type Props = {
@@ -24,12 +31,7 @@ export default async function ProductDetailsPage({
 
         <div className="relative h-[550px] rounded-3xl overflow-hidden border bg-gray-100">
 
-          <Image
-            src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200"
-            alt="Product"
-            fill
-            className="object-cover"
-          />
+         <ProductGallery images={images} />
 
         </div>
 
