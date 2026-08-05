@@ -146,7 +146,7 @@ return (
     <div className="flex items-center gap-8">
 
       {/* Wishlist */}
-
+{/* 
       <div className="relative cursor-pointer">
 
         <Heart size={23} />
@@ -159,7 +159,7 @@ return (
 
         </span>
 
-      </div>
+      </div> */}
 
       {/* Cart */}
 
