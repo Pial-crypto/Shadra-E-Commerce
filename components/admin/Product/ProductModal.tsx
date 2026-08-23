@@ -209,7 +209,7 @@ export default function ProductModal({
 
               {/* Discount */}
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {/* <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                 <div>
 
@@ -249,7 +249,7 @@ export default function ProductModal({
 
                 </div>
 
-              </div>
+              </div> */}
 
               {/* Warranty */}
 
@@ -299,7 +299,7 @@ export default function ProductModal({
 
               {/* Badge */}
 
-              <div>
+              {/* <div>
 
                 <label className="mb-2 block font-medium">
 
@@ -307,33 +307,21 @@ export default function ProductModal({
 
                 </label>
 
-                <select className="w-full rounded-xl border px-4 py-3">
+           
 
-                  <option>Hot</option>
-
-                  <option>New</option>
-
-                  <option>Sale</option>
-
-                  <option>Trending</option>
-
-                  <option>Popular</option>
-
-                </select>
-
-              </div>
+              </div> */}
 
               {/* Featured */}
 
               <div className="space-y-3">
 
-                <label className="flex items-center gap-3">
+                {/* <label className="flex items-center gap-3">
 
                   <input type="checkbox" />
 
                   Featured Product
 
-                </label>
+                </label> */}
 
                 <label className="flex items-center gap-3">
 

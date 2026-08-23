@@ -1,9 +1,11 @@
 export interface Product {
-  id: number;
   title: string;
-  image: string;
+  images: string[];
+  description: string;
+  category: string;
   price: number;
   oldPrice: number;
-  discount: string;
-  badge: string;
+  stock: number;
+  warranty?: string;
+  isTrending?: boolean;
 }

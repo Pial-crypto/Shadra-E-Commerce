@@ -52,11 +52,11 @@ model Product {
 
   images            String[]
 
-  shortDescription  String
+ 
 
   description       String
 
-  specifications    Json?
+
 
   category          Category
 
@@ -66,13 +66,13 @@ model Product {
 
   stock             Int       @default(0)
 
-  badge             String?
 
-  discount          Float?
+
+  
 
   warranty          String?
 
-  isFeatured        Boolean   @default(false)
+  isTrending        Boolean   @default(false)
 
   createdAt         DateTime  @default(now())
 
