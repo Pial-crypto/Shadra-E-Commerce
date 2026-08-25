@@ -2,13 +2,20 @@
 
 import { Upload, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
-
-export default function ImageUploader() {
+interface ImageUploaderProps {
+  onFilesChange: (files: File[]) => void;
+}
+export default function ImageUploader({
+  onFilesChange,
+}: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+   
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+
 
   const [images, setImages] = useState<string[]>([
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=700",
-    "https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?w=700",
+    // "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=700",
+    // "https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?w=700",
   ]);
 
   function handleImageChange(
@@ -18,20 +25,45 @@ export default function ImageUploader() {
 
     if (!files || files.length === 0) return;
 
-    const newImages = Array.from(files).map((file) =>
+    const newFiles = Array.from(files);
+
+    const newImages = newFiles.map((file) =>
       URL.createObjectURL(file)
     );
+const updated=[...imageFiles,...newFiles]
+setImageFiles(updated)
+onFilesChange(updated);
+    // setImageFiles((prev) => {
+    //   const updated = [...prev, ...newFiles];
+
+    //   //onFilesChange(updated);
+
+    //   return updated;
+    // });
 
     setImages((prev) => [...prev, ...newImages]);
 
-    // Same file আবার select করতে পারার জন্য
     e.target.value = "";
   }
+
+  console.log(images,"All the images")
+  console.log(imageFiles,"All the imageFiles");
 
   function removeImage(index: number) {
     setImages((prev) =>
       prev.filter((_, i) => i !== index)
     );
+    const updated=imageFiles.filter((_, i) => i !== index);
+    setImageFiles(updated)
+    onFilesChange(updated);
+
+    // setImageFiles((prev) => {
+    //   const updated = prev.filter((_, i) => i !== index);
+
+    //   onFilesChange(updated);
+
+    //   return updated;
+    // });
   }
 
   return (

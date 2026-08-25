@@ -62,31 +62,57 @@ export async function GET() {
  */
 
 import { createProduct } from "@/lib/services/product.service";
+import { createProductSchema, productSchema } from "@/schemas/product.schema";
+import { Prisma } from "@/lib/generated/prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const product = await createProduct(body);
+    const validatedData = createProductSchema.safeParse(body);
+    console.log(validatedData,"All the validated data")
+
+    if (!validatedData.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          issues: validatedData.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const product = await createProduct(
+      body
+    );
 
     return NextResponse.json(product, {
       status: 201,
     });
-  } catch (error) {
-    console.error(error);
 
+  } catch (error) {
+  console.error("Here is the error", error);
+
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  ) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to create product",
+        error: "A product with this title already exists.",
       },
-      { status: 500 }
+      { status: 409 }
     );
   }
-}
 
+  return NextResponse.json(
+    {
+      error: "Failed to create product",
+    },
+    { status: 500 }
+  );
+}
+}
 
 // export async function GET(_request: Request) {
 //   // Do whatever you want

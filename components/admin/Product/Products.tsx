@@ -8,45 +8,90 @@ import {
 
 import { useState } from "react";
 import ProductModal from "./ProductModal";
+import { Product } from "@/types/product";
+import { createProduct, uploadProductImages } from "@/lib/api/products";
+import Toast from "@/components/ui/Toast";
 
 
-const products = [
-  {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
-    title: "Sony Wireless Headphone",
-    category: "Audio",
-    price: 5990,
-    stock: 12,
-    status: "In Stock",
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=500",
-    title: "Anker Power Bank",
-    category: "Accessories",
-    price: 2490,
-    stock: 8,
-    status: "In Stock",
-  },
-  {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500",
-    title: "Gaming Earbuds",
-    category: "Gaming",
-    price: 1490,
-    stock: 0,
-    status: "Out of Stock",
-  },
-];
-
+// export const mockproducts: Product[] = [
+//   {
+//     id: "1",
+//     images: [
+//       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
+//     ],
+//     title: "Sony Wireless Headphone",
+//     description: "Premium wireless headphones with high-quality sound.",
+//     category: "Audio",
+//     price: 5990,
+//     oldPrice: 6990,
+//     stock: 12,
+//     // status: "In Stock",
+//     warranty: "1 Year",
+//     isTrending: true,
+//   },
+//   {
+//     id: "2",
+//     images: [
+//       "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=500",
+//     ],
+//     title: "Anker Power Bank",
+//     description: "High-capacity portable power bank for everyday use.",
+//     category: "Accessories",
+//     price: 2490,
+//     oldPrice: 2990,
+//     stock: 8,
+//     // status: "In Stock",
+//     warranty: "1 Year",
+//     isTrending: false,
+//   },
+//   {
+//     id: "3",
+//     images: [
+//       "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500",
+//     ],
+//     title: "Gaming Earbuds",
+//     description: "Low-latency gaming earbuds with immersive sound.",
+//     category: "Gaming",
+//     price: 1490,
+//     oldPrice: 1990,
+//     stock: 0,
+//     // status: "Out of Stock",
+//     warranty: "6 Months",
+//     isTrending: true,
+//   },
+// ];
 
 
  const    Products=()=>{
     const [open, setOpen] = useState(false);
+   const [products, setProducts] = useState<Product[]>([]);
+  // const [productImageFiles,setProductImageFiles]=useState<File[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [succuess,setSuccess]=useState<boolean>(false)
+const handleAddProduct = (product: Product,imageFiles:File[]) => {
+  console.log("Inside products", imageFiles)
+  console.log("inside products",product)
+
+  uploadProductImages(imageFiles).then((uploadedPaths)=>{
+    console.log(uploadedPaths,"They all are the uploaded paths")
+      createProduct({...product,images:uploadedPaths})
+    .then((createdProduct) => {
+      console.log(createProduct,"This is the creted new product")
+      setProducts((prev) => [{...createdProduct,images:uploadedPaths}, ...prev]);
+      setSuccess(true)
+
+    })
+    .catch((error) => {
+      setError(error.message)
+     console.error("Failed to create product:", error);
+    });
+
+  }).catch((error)=>{
+    setError("Failed to upload image")
+   // console.log("Some error",error)
+  })
+
+};
     return(
         <>
         <section>
@@ -111,13 +156,13 @@ const products = [
       className="rounded-2xl border bg-white p-4 shadow-sm"
     >
       <div className="flex gap-4">
-        <Image
-          src={product.image}
+        {/* <Image
+          src={product.image[0]}
           alt={product.title}
           width={70}
           height={70}
           className="rounded-xl object-cover"
-        />
+        /> */}
 
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold">
@@ -140,7 +185,7 @@ const products = [
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {product.status}
+              {/* {product.status} */}
             </span>
           </div>
 
@@ -233,13 +278,13 @@ const products = [
         
                             <div className="flex items-center gap-4">
         
-                              <Image
+                              {/* <Image
                                 src={product.image}
                                 alt={product.title}
                                 width={70}
                                 height={70}
                                 className="rounded-xl object-cover"
-                              />
+                              /> */}
         
                               <p className="font-semibold">
         
@@ -281,7 +326,7 @@ const products = [
                               }`}
                             >
         
-                              {product.status}
+                              {/* {product.status} */}
         
                             </span>
         
@@ -321,9 +366,26 @@ const products = [
         
             </section>
         <ProductModal
+      handleAddProduct={handleAddProduct}
   open={open}
   onClose={() => setOpen(false)}
 />
+
+{error && (
+  <Toast
+    type="error"
+    message={error}
+    onClose={() => setError(null)}
+  />
+)}
+
+{succuess && (
+  <Toast
+    type="success"
+    message="Product creation successfull"
+    onClose={() => setSuccess(false)}
+  />
+)}
             </>
     )
 }

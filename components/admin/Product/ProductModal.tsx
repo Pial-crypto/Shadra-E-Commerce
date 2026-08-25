@@ -2,25 +2,87 @@
 
 import { X } from "lucide-react";
 import { useEffect } from "react";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import ImageUploader from "./ImageUploader";
+
+import { Product } from "@/types/product";
+
+import {
+  ProductFormData,
+  productSchema,
+} from "@/schemas/product.schema";
+
+
+/* ==========================================================
+                         PROPS
+========================================================== */
+
 interface ProductModalProps {
   open: boolean;
   onClose: () => void;
+
+  handleAddProduct: (
+    product: Product,
+    imageFiles: File[]
+  ) => void;
 }
+
+
+/* ==========================================================
+                      PRODUCT MODAL
+========================================================== */
 
 export default function ProductModal({
   open,
   onClose,
+  handleAddProduct,
 }: ProductModalProps) {
+
+
+  /* ==========================================================
+                         FORM
+  ========================================================== */
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+
+    formState: {
+      errors,
+    },
+
+  } = useForm<ProductFormData>({
+    resolver: zodResolver(productSchema),
+
+    defaultValues: {
+      title: "",
+      category: "Audio",
+      price: "",
+      oldPrice: "",
+      warranty: "",
+      description: "",
+      imageFiles: [],
+      isTrending: false,
+      stock:""
+    },
+  });
+
+
+  /* ==========================================================
+                    ESCAPE HANDLER
+  ========================================================== */
 
   useEffect(() => {
 
     function handleEscape(e: KeyboardEvent) {
 
       if (e.key === "Escape") {
-
         onClose();
-
       }
 
     }
@@ -49,287 +111,793 @@ export default function ProductModal({
 
   }, [open, onClose]);
 
-  if (!open) return null;
+
+  /* ==========================================================
+                         SUBMIT
+  ========================================================== */
+
+  const onSubmit = (data: ProductFormData) => {
+
+
+    /* ========================================================
+                       PRODUCT OBJECT
+    ======================================================== */
+
+    const product: Product = {
+
+      id: crypto.randomUUID(),
+
+      title: data.title.trim(),
+
+      description: data.description.trim(),
+
+      category: data.category as Product["category"],
+
+      price: Number(data.price),
+
+      oldPrice: Number(data.oldPrice),
+
+      stock: Number(data.stock),
+
+      warranty: data.warranty?.trim() || "",
+
+      isTrending: data.isTrending,
+
+      // images,
+
+    };
+
+
+    /* ========================================================
+                    PASS PRODUCT TO PARENT
+    ======================================================== */
+
+    console.log(
+      "Before calling handle add products"
+    );
+
+    console.log(
+      product,
+      data.imageFiles
+    );
+
+    handleAddProduct(
+      product,
+      data.imageFiles
+    );
+
+
+    /* ========================================================
+                       RESET FORM
+    ======================================================== */
+
+    reset();
+
+
+    /* ========================================================
+                         CLOSE MODAL
+    ======================================================== */
+
+    onClose();
+
+  };
+
+
+  /* ==========================================================
+                      MODAL CLOSED
+  ========================================================== */
+
+  if (!open) {
+    return null;
+  }
+
+
+  /* ==========================================================
+                           UI
+  ========================================================== */
 
   return (
 
-   <div
-  onClick={onClose}
-  className="
-    fixed
-    inset-0
-    z-[999]
-    flex
-    items-center
-    justify-center
-    bg-black/60
-    backdrop-blur-sm
-    p-3
-    md:p-5
-  "
->
-  <div
-    onClick={(e) => e.stopPropagation()}
-    className="
-      flex
-      w-full
-      max-w-6xl
-      max-h-[92vh]
-      flex-col
-      overflow-hidden
-      rounded-3xl
-      bg-white
-      shadow-2xl
-    "
-  >
-        {/* ====================================== */}
+    <div
+      onClick={onClose}
 
-        {/* Header */}
+      className="
+        fixed
+        inset-0
+        z-[999]
 
-        {/* ====================================== */}
+        flex
+        items-center
+        justify-center
 
-        <div className="flex items-center justify-between border-b px-5 py-5 sm:px-8">
-  <div>
-    <h2 className="text-2xl font-bold sm:text-3xl">
-      Add Product
-    </h2>
+        bg-black/60
+        backdrop-blur-sm
 
-    <p className="mt-1 text-sm text-gray-500 sm:text-base">
-      Create a new product
-    </p>
-  </div>
+        p-3
+        md:p-5
+      "
+    >
 
-  <button
-    onClick={onClose}
-    className="rounded-xl p-3 transition hover:bg-gray-100"
-  >
-    <X />
-  </button>
-</div>
+      <div
+        onClick={(e) => e.stopPropagation()}
 
-        {/* ====================================== */}
+        className="
+          flex
+          w-full
+          max-w-6xl
+          max-h-[92vh]
 
-        {/* BODY */}
+          flex-col
 
-        {/* ====================================== */}
-<div className="flex-1 overflow-y-auto">
-  <div className="grid grid-cols-1 gap-6 p-5 lg:grid-cols-2 lg:gap-8 lg:p-8">
+          overflow-hidden
 
-            {/* LEFT */}
+          rounded-3xl
+          bg-white
 
-            <div className="space-y-6">
+          shadow-2xl
+        "
+      >
 
-              {/* Product Title */}
 
-              <div>
+        {/* ==================================================
+                              HEADER
+        ================================================== */}
 
-                <label className="mb-2 block font-medium">
+        <div
+          className="
+            flex
+            items-center
+            justify-between
 
-                  Product Title
+            border-b
 
-                </label>
+            px-5
+            py-5
 
-                <input
+            sm:px-8
+          "
+        >
 
-                  placeholder="Sony Headphone"
+          <div>
 
-                  className="w-full rounded-xl border px-4 py-3 outline-none focus:border-yellow-500"
+            <h2
+              className="
+                text-2xl
+                font-bold
 
-                />
+                sm:text-3xl
+              "
+            >
+              Add Product
+            </h2>
 
-              </div>
+            <p
+              className="
+                mt-1
+                text-sm
+                text-gray-500
 
-              {/* Category */}
+                sm:text-base
+              "
+            >
+              Create a new product
+            </p>
 
-              <div>
+          </div>
 
-                <label className="mb-2 block font-medium">
 
-                  Category
+          {/* Close Button */}
 
-                </label>
+          <button
+            type="button"
+            onClick={onClose}
 
-                <select className="w-full rounded-xl border px-4 py-3">
+            className="
+              rounded-xl
+              p-3
 
-                  <option>Audio</option>
+              transition
 
-                  <option>Power Bank</option>
+              hover:bg-gray-100
+            "
+          >
+            <X />
+          </button>
 
-                  <option>Accessories</option>
+        </div>
 
-                  <option>Gaming</option>
 
-                  <option>Charging</option>
+        {/* ==================================================
+                              FORM
+        ================================================== */}
 
-                </select>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
 
-              </div>
+          className="
+            flex
+            min-h-0
+            flex-1
+            flex-col
+          "
+        >
 
-              {/* Price */}
 
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {/* ==================================================
+                              BODY
+          ================================================== */}
+
+          <div className="flex-1 overflow-y-auto">
+
+            <div
+              className="
+                grid
+                grid-cols-1
+
+                gap-6
+
+                p-5
+
+                lg:grid-cols-2
+                lg:gap-8
+                lg:p-8
+              "
+            >
+
+
+              {/* =================================================
+                                  LEFT
+              ================================================== */}
+
+              <div className="space-y-6">
+
+
+                {/* =================================================
+                              PRODUCT TITLE
+                ================================================== */}
 
                 <div>
 
-                  <label className="mb-2 block font-medium">
+                  <label
+                    className="
+                      mb-2
+                      block
+                      font-medium
+                    "
+                  >
+                    Product Title
+                  </label>
 
-                    Price
+                  <input
+                    {...register("title")}
+
+                    placeholder="Sony Headphone"
+
+                    className={`
+                      w-full
+                      rounded-xl
+                      border
+                      px-4
+                      py-3
+                      outline-none
+
+                      ${
+                        errors.title
+                          ? "border-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:border-yellow-500"
+                      }
+                    `}
+                  />
+
+                  {errors.title && (
+
+                    <p
+                      className="
+                        mt-1
+                        text-sm
+                        text-red-500
+                      "
+                    >
+                      {errors.title.message}
+                    </p>
+
+                  )}
+
+                </div>
+
+
+                {/* =================================================
+                                CATEGORY
+                ================================================== */}
+
+                <div>
+
+                  <label
+                    className="
+                      mb-2
+                      block
+                      font-medium
+                    "
+                  >
+                    Category
+                  </label>
+
+                  <select
+                    {...register("category")}
+
+                    className={`
+                      w-full
+                      rounded-xl
+                      border
+                      px-4
+                      py-3
+                      outline-none
+
+                      ${
+                        errors.category
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }
+                    `}
+                  >
+
+                    <option value="Audio">
+                      Audio
+                    </option>
+
+                    <option value="Power Bank">
+                      Power Bank
+                    </option>
+
+                    <option value="Accessories">
+                      Accessories
+                    </option>
+
+                    <option value="Gaming">
+                      Gaming
+                    </option>
+
+                    <option value="Charging">
+                      Charging
+                    </option>
+
+                  </select>
+
+                  {errors.category && (
+
+                    <p
+                      className="
+                        mt-1
+                        text-sm
+                        text-red-500
+                      "
+                    >
+                      {errors.category.message}
+                    </p>
+
+                  )}
+
+                </div>
+
+
+                {/* =================================================
+                            PRICE + OLD PRICE
+                ================================================== */}
+
+                <div
+                  className="
+                    grid
+                    grid-cols-1
+                    gap-5
+
+                    sm:grid-cols-2
+                  "
+                >
+
+                  <div>
+
+                    <label
+                      className="
+                        mb-2
+                        block
+                        font-medium
+                      "
+                    >
+                      Price
+                    </label>
+
+                    <input
+                      {...register("price")}
+
+                      type="number"
+
+                      placeholder="5990"
+
+                      className={`
+                        w-full
+                        rounded-xl
+                        border
+                        px-4
+                        py-3
+                        outline-none
+
+                        ${
+                          errors.price
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }
+                      `}
+                    />
+
+                    {errors.price && (
+
+                      <p
+                        className="
+                          mt-1
+                          text-sm
+                          text-red-500
+                        "
+                      >
+                        {errors.price.message}
+                      </p>
+
+                    )}
+
+                  </div>
+
+
+                  <div>
+
+                    <label
+                      className="
+                        mb-2
+                        block
+                        font-medium
+                      "
+                    >
+                      Old Price
+                    </label>
+
+                    <input
+                      {...register("oldPrice")}
+
+                      type="number"
+
+                      placeholder="6990"
+
+                      className={`
+                        w-full
+                        rounded-xl
+                        border
+                        px-4
+                        py-3
+                        outline-none
+
+                        ${
+                          errors.oldPrice
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }
+                      `}
+                    />
+
+                    {errors.oldPrice && (
+
+                      <p
+                        className="
+                          mt-1
+                          text-sm
+                          text-red-500
+                        "
+                      >
+                        {errors.oldPrice.message}
+                      </p>
+
+                    )}
+
+                  </div>
+
+                </div>
+
+
+                {/* =================================================
+                              Discount
+                ================================================== */}
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+                  {/* <div>
+
+                    <label className="mb-2 block font-medium">
+                      Discount %
+                    </label>
+
+                    <input
+                      type="number"
+                      placeholder="20.5"
+                      className="w-full rounded-xl border px-4 py-3"
+                    />
+
+                  </div> */}
+
+                  <div>
+
+                    <label className="mb-2 block font-medium">
+                      Stock
+                    </label>
+  <input
+                      {...register("stock")}
+
+                      type="number"
+
+                      placeholder="0"
+
+                      className={`
+                        w-full
+                        rounded-xl
+                        border
+                        px-4
+                        py-3
+                        outline-none
+
+                        ${
+                          errors.stock
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }
+                      `}
+                    />
+
+                         {errors.stock && (
+
+                      <p
+                        className="
+                          mt-1
+                          text-sm
+                          text-red-500
+                        "
+                      >
+                        {errors.stock.message}
+                      </p>
+
+                    )}
+
+                    {/* <input
+                      type="number"
+                      className="w-full rounded-xl border px-4 py-3"
+                    /> */}
+
+                  </div>
+
+                </div>
+
+
+                {/* =================================================
+                              WARRANTY
+                ================================================== */}
+
+                <div>
+
+                  <label
+                    className="
+                      mb-2
+                      block
+                      font-medium
+                    "
+                  >
+                    Warranty
+
+                    <span
+                      className="
+                        ml-2
+                        text-sm
+                        font-normal
+                        text-gray-400
+                      "
+                    >
+                      (Optional)
+                    </span>
 
                   </label>
 
                   <input
+                    {...register("warranty")}
 
-                    type="number"
+                    placeholder="12 Months"
 
-                    className="w-full rounded-xl border px-4 py-3"
+                    className={`
+                      w-full
+                      rounded-xl
+                      border
+                      px-4
+                      py-3
+                      outline-none
 
+                      ${
+                        errors.warranty
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }
+                    `}
                   />
 
-                </div>
+                  {errors.warranty && (
 
-                <div>
+                    <p
+                      className="
+                        mt-1
+                        text-sm
+                        text-red-500
+                      "
+                    >
+                      {errors.warranty.message}
+                    </p>
 
-                  <label className="mb-2 block font-medium">
-
-                    Old Price
-
-                  </label>
-
-                  <input
-
-                    type="number"
-
-                    className="w-full rounded-xl border px-4 py-3"
-
-                  />
+                  )}
 
                 </div>
 
               </div>
 
-              {/* Discount */}
 
-              {/* <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {/* =================================================
+                                  RIGHT
+              ================================================== */}
 
-                <div>
+              <div className="space-y-6">
 
-                  <label className="mb-2 block font-medium">
 
-                    Discount %
-
-                  </label>
-
-                  <input
-
-                    type="number"
-
-                    placeholder="20.5"
-
-                    className="w-full rounded-xl border px-4 py-3"
-
-                  />
-
-                </div>
+                {/* =================================================
+                            PRODUCT IMAGES
+                ================================================== */}
 
                 <div>
 
-                  <label className="mb-2 block font-medium">
+                  <ImageUploader
+                    onFilesChange={(files) => {
 
-                    Stock
+                      setValue(
+                        "imageFiles",
+                        files,
+                        {
+                          shouldValidate: true,
+                        }
+                      );
 
-                  </label>
-
-                  <input
-
-                    type="number"
-
-                    className="w-full rounded-xl border px-4 py-3"
-
+                    }}
                   />
+
+                  {errors.imageFiles && (
+
+                    <p
+                      className="
+                        mt-1
+                        text-sm
+                        text-red-500
+                      "
+                    >
+                      {errors.imageFiles.message}
+                    </p>
+
+                  )}
 
                 </div>
 
-              </div> */}
 
-              {/* Warranty */}
+                {/* =================================================
+                              DESCRIPTION
+                ================================================== */}
 
-              <div>
+                <div>
 
-                <label className="mb-2 block font-medium">
+                  <label
+                    className="
+                      mb-2
+                      block
+                      font-medium
+                    "
+                  >
+                    Description
+                  </label>
 
-                  Warranty
+                  <textarea
+                    {...register("description")}
 
-                </label>
+                    rows={7}
 
-                <input
+                    className={`
+                      w-full
+                      rounded-xl
+                      border
+                      px-4
+                      py-3
+                      outline-none
 
-                  placeholder="12 Months"
+                      ${
+                        errors.description
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }
+                    `}
+                  />
 
-                  className="w-full rounded-xl border px-4 py-3"
+                  {errors.description && (
 
-                />
+                    <p
+                      className="
+                        mt-1
+                        text-sm
+                        text-red-500
+                      "
+                    >
+                      {errors.description.message}
+                    </p>
 
-              </div>
+                  )}
 
-            </div>
+                </div>
 
-            {/* RIGHT */}
 
-            <div className="space-y-6">
-<ImageUploader />
-              {/* Description */}
+                {/* =================================================
+                                BADGE
+                ================================================== */}
 
-              <div>
+                {/* <div>
 
-                <label className="mb-2 block font-medium">
+                  <label className="mb-2 block font-medium">
+                    Badge
+                  </label>
 
-                  Description
+                  <input
+                    type="text"
+                    placeholder="Best Seller"
+                    className="w-full rounded-xl border px-4 py-3"
+                  />
 
-                </label>
+                </div> */}
 
-                <textarea
 
-                  rows={7}
+                {/* =================================================
+                              FEATURED
+                ================================================== */}
 
-                  className="w-full rounded-xl border px-4 py-3"
+                <div className="space-y-3">
 
-                />
+                  {/* <label className="flex items-center gap-3">
 
-              </div>
+                    <input
+                      type="checkbox"
+                    />
 
-              {/* Badge */}
+                    Featured Product
 
-              {/* <div>
+                  </label> */}
 
-                <label className="mb-2 block font-medium">
 
-                  Badge
+                  <label
+                    className="
+                      flex
+                      items-center
+                      gap-3
+                    "
+                  >
 
-                </label>
+                    <input
+                      {...register("isTrending")}
 
-           
+                      type="checkbox"
 
-              </div> */}
+                      className="
+                        h-4
+                        w-4
+                      "
+                    />
 
-              {/* Featured */}
+                    Trending Product
 
-              <div className="space-y-3">
+                  </label>
 
-                {/* <label className="flex items-center gap-3">
-
-                  <input type="checkbox" />
-
-                  Featured Product
-
-                </label> */}
-
-                <label className="flex items-center gap-3">
-
-                  <input type="checkbox" />
-
-                  Trending Product
-
-                </label>
+                </div>
 
               </div>
 
@@ -337,66 +905,103 @@ export default function ProductModal({
 
           </div>
 
-        </div>
 
-        {/* ====================================== */}
+          {/* ==================================================
+                              FOOTER
+          ================================================== */}
 
-        {/* FOOTER */}
+          <div
+            className="
+              flex
+              flex-col-reverse
 
-        {/* ====================================== */}
+              gap-3
 
-       <div
-  className="
-    flex
-    flex-col-reverse
-    gap-3
-    border-t
-    px-5
-    py-5
-    sm:flex-row
-    sm:justify-end
-    sm:px-8
-  "
->
+              border-t
 
-         <button
-  onClick={onClose}
-  className="
-    w-full
-    rounded-xl
-    border
-    px-6
-    py-3
-    font-medium
-    sm:w-auto
-  "
->
-  Cancel
-</button>
+              px-5
+              py-5
 
-          <button
-  className="
-    w-full
-    rounded-xl
-    bg-yellow-500
-    px-8
-    py-3
-    font-semibold
-    text-white
-    transition
-    hover:bg-yellow-600
-    sm:w-auto
-  "
->
-  Save Product
-</button>
+              sm:flex-row
+              sm:justify-end
 
-        </div>
+              sm:px-8
+            "
+          >
+
+
+            {/* =================================================
+                              CANCEL
+            ================================================== */}
+
+            <button
+              type="button"
+
+              onClick={onClose}
+
+              className="
+                cursor-pointer
+
+                w-full
+
+                rounded-xl
+                border
+
+                px-6
+                py-3
+
+                font-medium
+
+                transition
+
+                hover:bg-gray-50
+
+                sm:w-auto
+              "
+            >
+              Cancel
+            </button>
+
+
+            {/* =================================================
+                            SAVE PRODUCT
+            ================================================== */}
+
+            <button
+              type="submit"
+
+              className="
+                cursor-pointer
+
+                w-full
+
+                rounded-xl
+
+                bg-yellow-500
+
+                px-8
+                py-3
+
+                font-semibold
+                text-white
+
+                transition
+
+                hover:bg-yellow-600
+
+                sm:w-auto
+              "
+            >
+              Save Product
+            </button>
+
+          </div>
+
+        </form>
 
       </div>
 
     </div>
 
   );
-
 }

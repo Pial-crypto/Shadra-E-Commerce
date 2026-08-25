@@ -21,11 +21,10 @@ datasource db {
 // ======================================================
 
 enum Category {
-  POWER_BANKS
-  CHARGERS
-  HEADPHONES
-  EARBUDS
-  SMART_WATCHES
+  POWER_BANK
+  CHARGING
+  AUDIO
+  GAMING
   ACCESSORIES
 }
 
