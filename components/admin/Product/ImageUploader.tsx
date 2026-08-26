@@ -1,22 +1,48 @@
 "use client";
 
 import { Upload, Trash2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
 interface ImageUploaderProps {
   onFilesChange: (files: File[]) => void;
+  initialFiles?: File[];
 }
+
 export default function ImageUploader({
   onFilesChange,
+  initialFiles = [],
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-   
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
+  const [imageFiles, setImageFiles] =
+    useState<File[]>(initialFiles);
 
-  const [images, setImages] = useState<string[]>([
-    // "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=700",
-    // "https://images.unsplash.com/photo-1518444065439-e933c06ce9cd?w=700",
-  ]);
+  const [images, setImages] =
+    useState<string[]>([]);
+
+  /* ==========================================================
+                    INITIAL / EDIT IMAGES
+  ========================================================== */
+
+  useEffect(() => {
+    setImageFiles(initialFiles);
+
+    const newImages = initialFiles.map((file) =>
+      URL.createObjectURL(file)
+    );
+
+    setImages(newImages);
+
+    return () => {
+      newImages.forEach((image) => {
+        URL.revokeObjectURL(image);
+      });
+    };
+  }, [initialFiles]);
+
+  /* ==========================================================
+                         ADD IMAGES
+  ========================================================== */
 
   function handleImageChange(
     e: React.ChangeEvent<HTMLInputElement>
@@ -30,46 +56,59 @@ export default function ImageUploader({
     const newImages = newFiles.map((file) =>
       URL.createObjectURL(file)
     );
-const updated=[...imageFiles,...newFiles]
-setImageFiles(updated)
-onFilesChange(updated);
-    // setImageFiles((prev) => {
-    //   const updated = [...prev, ...newFiles];
 
-    //   //onFilesChange(updated);
+    const updated = [
+      ...imageFiles,
+      ...newFiles,
+    ];
 
-    //   return updated;
-    // });
+    setImageFiles(updated);
 
-    setImages((prev) => [...prev, ...newImages]);
+    setImages((prev) => [
+      ...prev,
+      ...newImages,
+    ]);
+
+    onFilesChange(updated);
 
     e.target.value = "";
   }
 
-  console.log(images,"All the images")
-  console.log(imageFiles,"All the imageFiles");
+  /* ==========================================================
+                         REMOVE IMAGE
+  ========================================================== */
 
   function removeImage(index: number) {
-    setImages((prev) =>
-      prev.filter((_, i) => i !== index)
+    const imageToRemove = images[index];
+
+    if (imageToRemove) {
+      URL.revokeObjectURL(imageToRemove);
+    }
+
+    const updatedFiles = imageFiles.filter(
+      (_, i) => i !== index
     );
-    const updated=imageFiles.filter((_, i) => i !== index);
-    setImageFiles(updated)
-    onFilesChange(updated);
 
-    // setImageFiles((prev) => {
-    //   const updated = prev.filter((_, i) => i !== index);
+    const updatedImages = images.filter(
+      (_, i) => i !== index
+    );
 
-    //   onFilesChange(updated);
+    setImageFiles(updatedFiles);
 
-    //   return updated;
-    // });
+    setImages(updatedImages);
+
+    onFilesChange(updatedFiles);
   }
+
+  /* ==========================================================
+                              UI
+  ========================================================== */
 
   return (
     <div className="space-y-6">
 
       {/* Upload Box */}
+
       <div
         onClick={() => inputRef.current?.click()}
         className="
@@ -128,6 +167,7 @@ onFilesChange(updated);
       </div>
 
       {/* Preview */}
+
       <div>
         <h3 className="mb-4 font-semibold">
           Image Preview
@@ -138,12 +178,22 @@ onFilesChange(updated);
           {images.map((image, index) => (
             <div
               key={image + index}
-              className="group relative overflow-hidden rounded-xl border"
+              className="
+                group
+                relative
+                overflow-hidden
+                rounded-xl
+                border
+              "
             >
               <img
                 src={image}
                 alt={`Product image ${index + 1}`}
-                className="aspect-square w-full object-cover"
+                className="
+                  aspect-square
+                  w-full
+                  object-cover
+                "
               />
 
               <button

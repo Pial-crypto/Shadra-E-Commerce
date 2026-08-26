@@ -20,6 +20,66 @@ if (!response.ok) {
 return result;
 }
 
+export async function updateProduct(
+  id: string,
+  data: Product
+) {
+  const response = await fetch(`/api/products/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    console.log("look at the result", result);
+
+    throw new Error(
+      result.error || "Failed to update product"
+    );
+  }
+
+  return result;
+}
+
+export async function getProducts() {
+  const response = await fetch("/api/products");
+
+  const result = await response.json();
+
+  if (!response.ok) {
+   // console.log("look at the result", result);
+
+    throw new Error(
+      result.error || "Failed to fetch products"
+    );
+  }
+
+  return result;
+}
+
+
+
+export async function deleteProduct(id:string) {
+ const response = await fetch(`/api/products/${id}`, { method: "DELETE", });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+   // console.log("look at the result", result);
+
+    throw new Error(
+      result.error || "Failed to delete product"
+    );
+  }
+
+  return result;
+}
+
+
 
 
 export async function uploadProductImages(

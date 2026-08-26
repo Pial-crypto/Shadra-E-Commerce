@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,14 +15,14 @@ import {
   productSchema,
 } from "@/schemas/product.schema";
 
+import { supabase } from "@/lib/supabase";
 
-/* ==========================================================
-                         PROPS
-========================================================== */
 
 interface ProductModalProps {
   open: boolean;
   onClose: () => void;
+
+  editingProduct?: Product | null;
 
   handleAddProduct: (
     product: Product,
@@ -31,19 +31,23 @@ interface ProductModalProps {
 }
 
 
-/* ==========================================================
-                      PRODUCT MODAL
-========================================================== */
-
 export default function ProductModal({
   open,
   onClose,
   handleAddProduct,
+  editingProduct,
 }: ProductModalProps) {
+
+  /* ==========================================================
+                            STATES
+  ========================================================== */
+
+  const [existingFiles, setExistingFiles] =
+    useState<File[]>([]);
 
 
   /* ==========================================================
-                         FORM
+                              FORM
   ========================================================== */
 
   const {
@@ -57,6 +61,7 @@ export default function ProductModal({
     },
 
   } = useForm<ProductFormData>({
+
     resolver: zodResolver(productSchema),
 
     defaultValues: {
@@ -68,24 +73,180 @@ export default function ProductModal({
       description: "",
       imageFiles: [],
       isTrending: false,
-      stock:""
+      stock: "",
     },
+
   });
 
 
   /* ==========================================================
-                    ESCAPE HANDLER
+                       ADD / EDIT DATA
   ========================================================== */
 
   useEffect(() => {
 
-    function handleEscape(e: KeyboardEvent) {
+    if (!editingProduct) {
+
+      setExistingFiles([]);
+
+      reset({
+        title: "",
+        category: "Audio",
+        price: "",
+        oldPrice: "",
+        warranty: "",
+        description: "",
+        imageFiles: [],
+        isTrending: false,
+        stock: "",
+      });
+
+      return;
+    }
+
+
+    reset({
+      title: editingProduct.title,
+
+  category: editingProduct.category
+  .toString()
+  .split("")
+  .map((char, index, arr) => {
+    if (index === 0) {
+      return char.toUpperCase();
+    }
+
+    if (arr[index - 1] === "_") {
+      return char.toUpperCase();
+    }
+
+    if (char === "_") {
+      return " ";
+    }
+
+    return char.toLowerCase();
+  })
+  .join(""),
+
+
+
+      price:
+        editingProduct.price.toString(),
+
+      oldPrice:
+        editingProduct.oldPrice?.toString() || "",
+
+      warranty:
+        editingProduct.warranty ?? "",
+
+      description:
+        editingProduct.description,
+
+      imageFiles: [],
+
+      isTrending:
+        editingProduct.isTrending,
+
+      stock:
+        editingProduct.stock.toString(),
+    });
+
+    console.log("This is the editing product",editingProduct)
+
+
+    const loadImages = async () => {
+
+      const files = await Promise.all(
+
+        editingProduct.images!.map(
+          async (imagePath) => {
+
+            const imageUrl =
+              supabase.storage
+                .from("Products")
+                .getPublicUrl(imagePath)
+                .data.publicUrl;
+
+
+            const response =
+              await fetch(imageUrl);
+
+
+            if (!response.ok) {
+              throw new Error(
+                "Failed to load product image"
+              );
+            }
+
+
+            const blob =
+              await response.blob();
+
+
+            return new File(
+              [blob],
+
+              imagePath.split("/").pop() ||
+                "product-image",
+
+              {
+                type:
+                  blob.type ||
+                  "image/png",
+              }
+            );
+
+          }
+        )
+
+      );
+
+
+      setExistingFiles(files);
+
+      setValue(
+        "imageFiles",
+        files,
+        {
+          shouldValidate: true,
+        }
+      );
+
+    };
+
+
+    loadImages().catch((error) => {
+
+      console.error(
+        "Failed to load existing images:",
+        error
+      );
+
+    });
+
+  }, [
+    editingProduct,
+    reset,
+    setValue,
+  ]);
+
+
+  /* ==========================================================
+                         ESCAPE KEY
+  ========================================================== */
+
+  useEffect(() => {
+
+    function handleEscape(
+      e: KeyboardEvent
+    ) {
 
       if (e.key === "Escape") {
         onClose();
       }
 
     }
+
 
     if (open) {
 
@@ -94,9 +255,11 @@ export default function ProductModal({
         handleEscape
       );
 
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow =
+        "hidden";
 
     }
+
 
     return () => {
 
@@ -105,7 +268,8 @@ export default function ProductModal({
         handleEscape
       );
 
-      document.body.style.overflow = "auto";
+      document.body.style.overflow =
+        "auto";
 
     };
 
@@ -113,78 +277,59 @@ export default function ProductModal({
 
 
   /* ==========================================================
-                         SUBMIT
+                           SUBMIT
   ========================================================== */
 
-  const onSubmit = (data: ProductFormData) => {
-
-
-    /* ========================================================
-                       PRODUCT OBJECT
-    ======================================================== */
+  const onSubmit = (
+    data: ProductFormData
+  ) => {
 
     const product: Product = {
 
-      id: crypto.randomUUID(),
+      // id: editingProduct
+      //   ? editingProduct.id
+      //   : crypto.randomUUID(),
 
-      title: data.title.trim(),
+      title:
+        data.title.trim(),
 
-      description: data.description.trim(),
+      description:
+        data.description.trim(),
 
-      category: data.category as Product["category"],
+      category:
+        data.category as Product["category"],
 
-      price: Number(data.price),
+      price:
+        Number(data.price),
 
-      oldPrice: Number(data.oldPrice),
+      oldPrice:
+        Number(data.oldPrice),
 
-      stock: Number(data.stock),
+      stock:
+        Number(data.stock),
 
-      warranty: data.warranty?.trim() || "",
+      warranty:
+        data.warranty?.trim() || "",
 
-      isTrending: data.isTrending,
+      isTrending:
+        data.isTrending,
 
-      // images,
+      images:
+        editingProduct?.images ?? [],
 
     };
 
-
-    /* ========================================================
-                    PASS PRODUCT TO PARENT
-    ======================================================== */
-
-    console.log(
-      "Before calling handle add products"
-    );
-
-    console.log(
-      product,
-      data.imageFiles
-    );
 
     handleAddProduct(
       product,
       data.imageFiles
     );
 
-
-    /* ========================================================
-                       RESET FORM
-    ======================================================== */
-
-    reset();
-
-
-    /* ========================================================
-                         CLOSE MODAL
-    ======================================================== */
-
-    onClose();
-
   };
 
 
   /* ==========================================================
-                      MODAL CLOSED
+                         CLOSED
   ========================================================== */
 
   if (!open) {
@@ -193,111 +338,86 @@ export default function ProductModal({
 
 
   /* ==========================================================
-                           UI
+                              UI
   ========================================================== */
 
   return (
 
     <div
       onClick={onClose}
-
       className="
         fixed
         inset-0
         z-[999]
-
         flex
         items-center
         justify-center
-
         bg-black/60
-        backdrop-blur-sm
-
         p-3
+        backdrop-blur-sm
         md:p-5
       "
     >
 
       <div
-        onClick={(e) => e.stopPropagation()}
-
+        onClick={(e) =>
+          e.stopPropagation()
+        }
         className="
           flex
+          max-h-[92vh]
           w-full
           max-w-6xl
-          max-h-[92vh]
-
           flex-col
-
           overflow-hidden
-
           rounded-3xl
           bg-white
-
           shadow-2xl
         "
       >
 
-
-        {/* ==================================================
-                              HEADER
-        ================================================== */}
+        {/* Header */}
 
         <div
           className="
             flex
             items-center
             justify-between
-
             border-b
-
             px-5
             py-5
-
             sm:px-8
           "
         >
 
           <div>
 
-            <h2
-              className="
-                text-2xl
-                font-bold
+            <h2 className="text-2xl font-bold sm:text-3xl">
 
-                sm:text-3xl
-              "
-            >
-              Add Product
+              {editingProduct
+                ? "Edit Product"
+                : "Add Product"}
+
             </h2>
 
-            <p
-              className="
-                mt-1
-                text-sm
-                text-gray-500
+            <p className="mt-1 text-sm text-gray-500 sm:text-base">
 
-                sm:text-base
-              "
-            >
-              Create a new product
+              {editingProduct
+                ? "Update product information"
+                : "Create a new product"}
+
             </p>
 
           </div>
 
 
-          {/* Close Button */}
-
           <button
             type="button"
             onClick={onClose}
-
             className="
               rounded-xl
               p-3
-
               transition
-
               hover:bg-gray-100
             "
           >
@@ -307,13 +427,10 @@ export default function ProductModal({
         </div>
 
 
-        {/* ==================================================
-                              FORM
-        ================================================== */}
+        {/* Form */}
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-
           className="
             flex
             min-h-0
@@ -322,28 +439,19 @@ export default function ProductModal({
           "
         >
 
-
-          {/* ==================================================
-                              BODY
-          ================================================== */}
-
           <div className="flex-1 overflow-y-auto">
 
             <div
               className="
                 grid
                 grid-cols-1
-
                 gap-6
-
                 p-5
-
                 lg:grid-cols-2
                 lg:gap-8
                 lg:p-8
               "
             >
-
 
               {/* =================================================
                                   LEFT
@@ -351,28 +459,17 @@ export default function ProductModal({
 
               <div className="space-y-6">
 
-
-                {/* =================================================
-                              PRODUCT TITLE
-                ================================================== */}
+                {/* TITLE */}
 
                 <div>
 
-                  <label
-                    className="
-                      mb-2
-                      block
-                      font-medium
-                    "
-                  >
+                  <label className="mb-2 block font-medium">
                     Product Title
                   </label>
 
                   <input
                     {...register("title")}
-
                     placeholder="Sony Headphone"
-
                     className={`
                       w-full
                       rounded-xl
@@ -383,7 +480,7 @@ export default function ProductModal({
 
                       ${
                         errors.title
-                          ? "border-red-500 focus:border-red-500"
+                          ? "border-red-500"
                           : "border-gray-300 focus:border-yellow-500"
                       }
                     `}
@@ -391,13 +488,7 @@ export default function ProductModal({
 
                   {errors.title && (
 
-                    <p
-                      className="
-                        mt-1
-                        text-sm
-                        text-red-500
-                      "
-                    >
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.title.message}
                     </p>
 
@@ -406,25 +497,16 @@ export default function ProductModal({
                 </div>
 
 
-                {/* =================================================
-                                CATEGORY
-                ================================================== */}
+                {/* CATEGORY */}
 
                 <div>
 
-                  <label
-                    className="
-                      mb-2
-                      block
-                      font-medium
-                    "
-                  >
+                  <label className="mb-2 block font-medium">
                     Category
                   </label>
 
                   <select
                     {...register("category")}
-
                     className={`
                       w-full
                       rounded-xl
@@ -465,13 +547,7 @@ export default function ProductModal({
 
                   {errors.category && (
 
-                    <p
-                      className="
-                        mt-1
-                        text-sm
-                        text-red-500
-                      "
-                    >
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.category.message}
                     </p>
 
@@ -480,39 +556,20 @@ export default function ProductModal({
                 </div>
 
 
-                {/* =================================================
-                            PRICE + OLD PRICE
-                ================================================== */}
+                {/* PRICE */}
 
-                <div
-                  className="
-                    grid
-                    grid-cols-1
-                    gap-5
-
-                    sm:grid-cols-2
-                  "
-                >
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                   <div>
 
-                    <label
-                      className="
-                        mb-2
-                        block
-                        font-medium
-                      "
-                    >
+                    <label className="mb-2 block font-medium">
                       Price
                     </label>
 
                     <input
                       {...register("price")}
-
                       type="number"
-
                       placeholder="5990"
-
                       className={`
                         w-full
                         rounded-xl
@@ -531,13 +588,7 @@ export default function ProductModal({
 
                     {errors.price && (
 
-                      <p
-                        className="
-                          mt-1
-                          text-sm
-                          text-red-500
-                        "
-                      >
+                      <p className="mt-1 text-sm text-red-500">
                         {errors.price.message}
                       </p>
 
@@ -548,23 +599,14 @@ export default function ProductModal({
 
                   <div>
 
-                    <label
-                      className="
-                        mb-2
-                        block
-                        font-medium
-                      "
-                    >
+                    <label className="mb-2 block font-medium">
                       Old Price
                     </label>
 
                     <input
                       {...register("oldPrice")}
-
                       type="number"
-
                       placeholder="6990"
-
                       className={`
                         w-full
                         rounded-xl
@@ -583,13 +625,7 @@ export default function ProductModal({
 
                     {errors.oldPrice && (
 
-                      <p
-                        className="
-                          mt-1
-                          text-sm
-                          text-red-500
-                        "
-                      >
+                      <p className="mt-1 text-sm text-red-500">
                         {errors.oldPrice.message}
                       </p>
 
@@ -600,111 +636,18 @@ export default function ProductModal({
                 </div>
 
 
-                {/* =================================================
-                              Discount
-                ================================================== */}
-
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
-                  {/* <div>
-
-                    <label className="mb-2 block font-medium">
-                      Discount %
-                    </label>
-
-                    <input
-                      type="number"
-                      placeholder="20.5"
-                      className="w-full rounded-xl border px-4 py-3"
-                    />
-
-                  </div> */}
-
-                  <div>
-
-                    <label className="mb-2 block font-medium">
-                      Stock
-                    </label>
-  <input
-                      {...register("stock")}
-
-                      type="number"
-
-                      placeholder="0"
-
-                      className={`
-                        w-full
-                        rounded-xl
-                        border
-                        px-4
-                        py-3
-                        outline-none
-
-                        ${
-                          errors.stock
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        }
-                      `}
-                    />
-
-                         {errors.stock && (
-
-                      <p
-                        className="
-                          mt-1
-                          text-sm
-                          text-red-500
-                        "
-                      >
-                        {errors.stock.message}
-                      </p>
-
-                    )}
-
-                    {/* <input
-                      type="number"
-                      className="w-full rounded-xl border px-4 py-3"
-                    /> */}
-
-                  </div>
-
-                </div>
-
-
-                {/* =================================================
-                              WARRANTY
-                ================================================== */}
+                {/* STOCK */}
 
                 <div>
 
-                  <label
-                    className="
-                      mb-2
-                      block
-                      font-medium
-                    "
-                  >
-                    Warranty
-
-                    <span
-                      className="
-                        ml-2
-                        text-sm
-                        font-normal
-                        text-gray-400
-                      "
-                    >
-                      (Optional)
-                    </span>
-
+                  <label className="mb-2 block font-medium">
+                    Stock
                   </label>
 
                   <input
-                    {...register("warranty")}
-
-                    placeholder="12 Months"
-
+                    {...register("stock")}
+                    type="number"
+                    placeholder="0"
                     className={`
                       w-full
                       rounded-xl
@@ -714,26 +657,52 @@ export default function ProductModal({
                       outline-none
 
                       ${
-                        errors.warranty
+                        errors.stock
                           ? "border-red-500"
                           : "border-gray-300"
                       }
                     `}
                   />
 
-                  {errors.warranty && (
+                  {errors.stock && (
 
-                    <p
-                      className="
-                        mt-1
-                        text-sm
-                        text-red-500
-                      "
-                    >
-                      {errors.warranty.message}
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.stock.message}
                     </p>
 
                   )}
+
+                </div>
+
+
+                {/* WARRANTY */}
+
+                <div>
+
+                  <label className="mb-2 block font-medium">
+
+                    Warranty
+
+                    <span className="ml-2 text-sm font-normal text-gray-400">
+                      (Optional)
+                    </span>
+
+                  </label>
+
+                  <input
+                    {...register("warranty")}
+                    placeholder="12 Months"
+                    className="
+                      w-full
+                      rounded-xl
+                      border
+                      border-gray-300
+                      px-4
+                      py-3
+                      outline-none
+                      focus:border-yellow-500
+                    "
+                  />
 
                 </div>
 
@@ -746,15 +715,17 @@ export default function ProductModal({
 
               <div className="space-y-6">
 
-
-                {/* =================================================
-                            PRODUCT IMAGES
-                ================================================== */}
+                {/* IMAGES */}
 
                 <div>
 
                   <ImageUploader
-                    onFilesChange={(files) => {
+                    initialFiles={
+                      existingFiles
+                    }
+                    onFilesChange={(
+                      files
+                    ) => {
 
                       setValue(
                         "imageFiles",
@@ -769,13 +740,7 @@ export default function ProductModal({
 
                   {errors.imageFiles && (
 
-                    <p
-                      className="
-                        mt-1
-                        text-sm
-                        text-red-500
-                      "
-                    >
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.imageFiles.message}
                     </p>
 
@@ -784,27 +749,17 @@ export default function ProductModal({
                 </div>
 
 
-                {/* =================================================
-                              DESCRIPTION
-                ================================================== */}
+                {/* DESCRIPTION */}
 
                 <div>
 
-                  <label
-                    className="
-                      mb-2
-                      block
-                      font-medium
-                    "
-                  >
+                  <label className="mb-2 block font-medium">
                     Description
                   </label>
 
                   <textarea
                     {...register("description")}
-
                     rows={7}
-
                     className={`
                       w-full
                       rounded-xl
@@ -823,13 +778,7 @@ export default function ProductModal({
 
                   {errors.description && (
 
-                    <p
-                      className="
-                        mt-1
-                        text-sm
-                        text-red-500
-                      "
-                    >
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.description.message}
                     </p>
 
@@ -838,66 +787,21 @@ export default function ProductModal({
                 </div>
 
 
-                {/* =================================================
-                                BADGE
-                ================================================== */}
+                {/* TRENDING */}
 
-                {/* <div>
-
-                  <label className="mb-2 block font-medium">
-                    Badge
-                  </label>
+                <label className="flex items-center gap-3">
 
                   <input
-                    type="text"
-                    placeholder="Best Seller"
-                    className="w-full rounded-xl border px-4 py-3"
+                    {...register(
+                      "isTrending"
+                    )}
+                    type="checkbox"
+                    className="h-4 w-4"
                   />
 
-                </div> */}
+                  Trending Product
 
-
-                {/* =================================================
-                              FEATURED
-                ================================================== */}
-
-                <div className="space-y-3">
-
-                  {/* <label className="flex items-center gap-3">
-
-                    <input
-                      type="checkbox"
-                    />
-
-                    Featured Product
-
-                  </label> */}
-
-
-                  <label
-                    className="
-                      flex
-                      items-center
-                      gap-3
-                    "
-                  >
-
-                    <input
-                      {...register("isTrending")}
-
-                      type="checkbox"
-
-                      className="
-                        h-4
-                        w-4
-                      "
-                    />
-
-                    Trending Product
-
-                  </label>
-
-                </div>
+                </label>
 
               </div>
 
@@ -906,56 +810,34 @@ export default function ProductModal({
           </div>
 
 
-          {/* ==================================================
-                              FOOTER
-          ================================================== */}
+          {/* Footer */}
 
           <div
             className="
               flex
               flex-col-reverse
-
               gap-3
-
               border-t
-
               px-5
               py-5
-
               sm:flex-row
               sm:justify-end
-
               sm:px-8
             "
           >
 
-
-            {/* =================================================
-                              CANCEL
-            ================================================== */}
-
             <button
               type="button"
-
               onClick={onClose}
-
               className="
-                cursor-pointer
-
                 w-full
-
+                cursor-pointer
                 rounded-xl
                 border
-
                 px-6
                 py-3
-
                 font-medium
-
-                transition
-
                 hover:bg-gray-50
-
                 sm:w-auto
               "
             >
@@ -963,36 +845,26 @@ export default function ProductModal({
             </button>
 
 
-            {/* =================================================
-                            SAVE PRODUCT
-            ================================================== */}
-
             <button
               type="submit"
-
               className="
-                cursor-pointer
-
                 w-full
-
+                cursor-pointer
                 rounded-xl
-
                 bg-yellow-500
-
                 px-8
                 py-3
-
                 font-semibold
                 text-white
-
-                transition
-
                 hover:bg-yellow-600
-
                 sm:w-auto
               "
             >
-              Save Product
+
+              {editingProduct
+                ? "Update Product"
+                : "Save Product"}
+
             </button>
 
           </div>

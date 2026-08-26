@@ -16,6 +16,7 @@ export const productSchema = z.object({
 
   price: z
     .string()
+  
     .min(1, "Product price is required.")
     .refine(
       (value) => Number(value) > 0,

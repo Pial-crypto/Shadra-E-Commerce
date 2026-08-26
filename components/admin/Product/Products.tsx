@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+
 import {
   Pencil,
   Trash2,
@@ -6,387 +9,943 @@ import {
   Search,
 } from "lucide-react";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import ProductModal from "./ProductModal";
+
 import { Product } from "@/types/product";
-import { createProduct, uploadProductImages } from "@/lib/api/products";
+
+import {
+  createProduct,
+  getProducts,
+  uploadProductImages,
+  updateProduct,
+  deleteProduct
+} from "@/lib/api/products";
+
 import Toast from "@/components/ui/Toast";
 
+import { supabase } from "@/lib/supabase";
 
-// export const mockproducts: Product[] = [
-//   {
-//     id: "1",
-//     images: [
-//       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
-//     ],
-//     title: "Sony Wireless Headphone",
-//     description: "Premium wireless headphones with high-quality sound.",
-//     category: "Audio",
-//     price: 5990,
-//     oldPrice: 6990,
-//     stock: 12,
-//     // status: "In Stock",
-//     warranty: "1 Year",
-//     isTrending: true,
-//   },
-//   {
-//     id: "2",
-//     images: [
-//       "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=500",
-//     ],
-//     title: "Anker Power Bank",
-//     description: "High-capacity portable power bank for everyday use.",
-//     category: "Accessories",
-//     price: 2490,
-//     oldPrice: 2990,
-//     stock: 8,
-//     // status: "In Stock",
-//     warranty: "1 Year",
-//     isTrending: false,
-//   },
-//   {
-//     id: "3",
-//     images: [
-//       "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=500",
-//     ],
-//     title: "Gaming Earbuds",
-//     description: "Low-latency gaming earbuds with immersive sound.",
-//     category: "Gaming",
-//     price: 1490,
-//     oldPrice: 1990,
-//     stock: 0,
-//     // status: "Out of Stock",
-//     warranty: "6 Months",
-//     isTrending: true,
-//   },
-// ];
+import { set, success } from "zod";
+import DeleteWarning from "@/components/ui/DeleteWarning";
 
 
- const    Products=()=>{
-    const [open, setOpen] = useState(false);
-   const [products, setProducts] = useState<Product[]>([]);
-  // const [productImageFiles,setProductImageFiles]=useState<File[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [succuess,setSuccess]=useState<boolean>(false)
-const handleAddProduct = (product: Product,imageFiles:File[]) => {
-  console.log("Inside products", imageFiles)
-  console.log("inside products",product)
 
-  uploadProductImages(imageFiles).then((uploadedPaths)=>{
-    console.log(uploadedPaths,"They all are the uploaded paths")
-      createProduct({...product,images:uploadedPaths})
-    .then((createdProduct) => {
-      console.log(createProduct,"This is the creted new product")
-      setProducts((prev) => [{...createdProduct,images:uploadedPaths}, ...prev]);
-      setSuccess(true)
+const Products = () => {
 
-    })
-    .catch((error) => {
-      setError(error.message)
-     console.error("Failed to create product:", error);
-    });
+  /* ==========================================================
+                            STATES
+  ========================================================== */
 
-  }).catch((error)=>{
-    setError("Failed to upload image")
-   // console.log("Some error",error)
+  const [open, setOpen] =
+    useState<boolean>(false)
+
+  const [products, setProducts] =
+    useState<Product[]>([]);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [success, setSuccess] =
+  useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] =
+    useState("");
+
+  const [editingProduct, setEditingProduct] =
+    useState<Product | null>(null);
+
+    const [deleteModalOpen,setDeleteModalOpen]=useState<boolean>(false)
+const [productToDelete,setProductToDelete]=useState<Product|null>(null)
+
+    const handleDelete=()=>{
+deleteProduct(productToDelete!?.id!).then((res)=>{
+  //console.log(res)
+  setSuccess(res.message)
+  setProducts((prev) =>
+  prev.filter((product) => product.id !== productToDelete!.id!)
+);
+  setDeleteModalOpen(false)
+}).catch((error)=>{
+     setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to delete product"
+        );
+})
+
+      setDeleteModalOpen(false)
+    }
+
+  /* ==========================================================
+                         GET PRODUCTS
+  ========================================================== */
+
+  useEffect(() => {
+
+    getProducts()
+
+      .then((products) => {
+
+        setProducts(products);
+
+      })
+
+      .catch((error) => {
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch products"
+        );
+
+      });
+
+  }, []);
+
+
+  /* ==========================================================
+                           SEARCH
+  ========================================================== */
+
+  const filteredProducts =
+    useMemo(() => {
+
+      const query =
+        searchQuery
+          .trim()
+          .toLowerCase();
+
+      if (!query) {
+        return products;
+      }
+
+      return products.filter(
+        (product) =>
+          product.title
+            .toLowerCase()
+            .includes(query) ||
+
+          product.category
+            .toLowerCase()
+            .includes(query)
+      );
+
+    }, [
+      products,
+      searchQuery,
+    ]);
+
+
+  /* ==========================================================
+                         ADD PRODUCT
+  ========================================================== */
+
+  const handleAddProduct = () => {
+
+    setEditingProduct(null);
+
+    setOpen(true);
+
+  };
+
+
+  /* ==========================================================
+                         EDIT PRODUCT
+  ========================================================== */
+
+  const handleEditProduct = (
+    product: Product
+  ) => {
+
+    setEditingProduct(product);
+
+    setOpen(true);
+
+  };
+
+
+  /* ==========================================================
+                       SAVE PRODUCT
+  ========================================================== */
+
+  const handleSaveProduct = (
+    product: Product,
+    imageFiles: File[]
+  ) => {
+
+    /* ========================================================
+                           ADD
+    ======================================================== */
+
+    if (!editingProduct) {
+
+      uploadProductImages(imageFiles)
+
+        .then((uploadedPaths) => {
+
+          return createProduct({
+
+            ...product,
+
+            images:
+              uploadedPaths,
+
+          });
+
+        })
+
+        .then((createdProduct) => {
+
+          setProducts((prev) => [
+
+            {
+              ...createdProduct,
+            },
+
+            ...prev,
+
+          ]);
+
+          setSuccess("Product creation successfull");
+
+          setOpen(false);
+
+        })
+
+        .catch((error) => {
+
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Failed to create product"
+          );
+
+          console.error(
+            "Failed to create product:",
+            error
+          );
+          
+
+        });
+
+      return;
+    }
+
+
+    /* ========================================================
+                           EDIT
+    ======================================================== */
+
+    console.log(
+      "Editing product:",
+      editingProduct
+    );
+
+    console.log("Image files for updation",imageFiles)
+
+       uploadProductImages(imageFiles)
+
+        .then((uploadedPaths) => {
+          updateProduct(editingProduct!.id!,{...product,images:uploadedPaths})
+          .then((updatedProduct)=>{
+  console.log(
+      "Edited product:",
+      updatedProduct
+    );
+setProducts((prev)=>
+  prev.map((product)=>{
+    if(product.id==editingProduct.id)return updatedProduct
+    return product
   })
+//  return prev
+)   
+  setSuccess("Product updated successfully")
+  setOpen(false)
+  
 
-};
-    return(
-        <>
-        <section>
-        
-              {/* Header */}
-        
-              <div className="mb-8 flex items-center justify-between">
-        
-        
-               <button
-  onClick={() => setOpen(true)}
-  className="flex items-center gap-2 rounded-xl bg-yellow-500 px-5 py-3 font-semibold hover:bg-yellow-600 cursor-pointer transition" 
->
-  <Plus size={20} />
-  Add Product
-</button>
-        
-              </div>
-        
-              {/* Search */}
-        
-              <div className="mb-8">
-        
-                <div className="relative max-w-md">
-        
-                  <Search
-                    size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-        
-                  <input
-                    placeholder="Search product..."
-                    className="
-                      w-full
-        
-                      rounded-xl
-        
-                      border
-        
-                      py-3
-        
-                      pl-11
-        
-                      pr-4
-        
-                      outline-none
-        
-                      focus:border-yellow-500
-                    "
-                  />
-        
-                </div>
-        
-              </div>
+          }).catch((error)=>{
+              setError(
+            error instanceof Error
+              ? error.message
+              : "Failed to update products"
+          );
 
-              {/* ================= MOBILE CARD ================= */}
+          console.error(
+            "Failed to update products:",
+            error
+          );
+          })
 
-<div className="space-y-4 lg:hidden">
-  {products.map((product) => (
-    <div
-      key={product.id}
-      className="rounded-2xl border bg-white p-4 shadow-sm"
-    >
-      <div className="flex gap-4">
-        {/* <Image
-          src={product.image[0]}
-          alt={product.title}
-          width={70}
-          height={70}
-          className="rounded-xl object-cover"
-        /> */}
+        
 
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold">
-            {product.title}
-          </h3>
+        })
+          .catch((error)=>{
+     setError(
+            error instanceof Error
+              ? error.message
+              : "Failed to upload images"
+          );
 
-          <p className="mt-1 text-sm text-gray-500">
-            {product.category}
+          console.error(
+            "Failed to upload images:",
+            error
+          );
+
+        });
+          
+ 
+
+  };
+
+
+  /* ==========================================================
+                              UI
+  ========================================================== */
+
+  return (
+
+    <>
+
+      <section>
+
+        {/* ======================================================
+                              HEADER
+        ====================================================== */}
+
+        <div
+          className="
+            mb-8
+            flex
+            items-center
+            justify-between
+          "
+        >
+
+          <button
+            onClick={
+              handleAddProduct
+            }
+            className="
+              flex
+              cursor-pointer
+              items-center
+              gap-2
+              rounded-xl
+              bg-yellow-500
+              px-5
+              py-3
+              font-semibold
+              transition
+              hover:bg-yellow-600
+            "
+          >
+
+            <Plus size={20} />
+
+            Add Product
+
+          </button>
+
+        </div>
+
+
+        {/* ======================================================
+                              SEARCH
+        ====================================================== */}
+
+        <div className="mb-8">
+
+          <div className="relative max-w-md">
+
+            <Search
+              size={18}
+              className="
+                absolute
+                left-4
+                top-1/2
+                -translate-y-1/2
+                text-gray-400
+              "
+            />
+
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) =>
+                setSearchQuery(
+                  e.target.value
+                )
+              }
+              placeholder="Search product..."
+              className="
+                w-full
+                rounded-xl
+                border
+                py-3
+                pl-11
+                pr-4
+                outline-none
+                transition
+                focus:border-yellow-500
+              "
+            />
+
+          </div>
+
+        </div>
+
+
+        {/* ======================================================
+                         RESULT COUNT
+        ====================================================== */}
+
+        {searchQuery.trim() && (
+
+          <p className="mb-4 text-sm text-gray-500">
+
+            {filteredProducts.length}{" "}
+
+            {filteredProducts.length === 1
+              ? "product"
+              : "products"}{" "}
+
+            found
+
           </p>
 
-          <div className="mt-3 flex items-center justify-between">
-            <span className="font-bold">
-              ৳{product.price}
-            </span>
+        )}
 
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                product.stock > 0
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {/* {product.status} */}
-            </span>
-          </div>
 
-          <div className="mt-3 flex items-center justify-between">
-            <span className="text-sm text-gray-500">
-              Stock: {product.stock}
-            </span>
+        {/* ======================================================
+                         MOBILE PRODUCTS
+        ====================================================== */}
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => setOpen(true)}
-                className="rounded-lg bg-blue-100 p-2 text-blue-700 hover:bg-blue-200"
+        <div className="space-y-4 lg:hidden">
+
+          {filteredProducts.map(
+            (product) => (
+
+              <div
+                key={product.id}
+                className="
+                  rounded-2xl
+                  border
+                  bg-white
+                  p-4
+                  shadow-sm
+                "
               >
-                <Pencil size={18} />
-              </button>
 
-              <button className="rounded-lg bg-red-100 p-2 text-red-700 hover:bg-red-200">
-                <Trash2 size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-        
-              {/* Table */}
-        
-             <div className="hidden lg:block overflow-hidden rounded-2xl border bg-white shadow-sm">
-        
-                <div className="overflow-x-auto">
-        
-                  <table className="w-full">
-        
-                    <thead>
-        
-                      <tr className="border-b bg-gray-50">
-        
-                        <th className="px-6 py-4 text-left">
-        
-                          Product
-        
-                        </th>
-        
-                        <th className="px-6 py-4 text-left">
-        
-                          Category
-        
-                        </th>
-        
-                        <th className="px-6 py-4 text-left">
-        
-                          Price
-        
-                        </th>
-        
-                        <th className="px-6 py-4 text-left">
-        
-                          Stock
-        
-                        </th>
-        
-                        <th className="px-6 py-4 text-left">
-        
-                          Status
-        
-                        </th>
-        
-                        <th className="px-6 py-4 text-center">
-        
-                          Action
-        
-                        </th>
-        
-                      </tr>
-        
-                    </thead>
-        
-                    <tbody>
-        
-                      {products.map((product) => (
-        
-                        <tr
-                          key={product.id}
-                          className="border-b hover:bg-gray-50"
+                <div className="flex gap-4">
+
+                  {/* IMAGE */}
+
+                  {product.images!?.length > 0 && (
+
+                    <Image
+                      src={
+                        supabase.storage
+                          .from("Products")
+                          .getPublicUrl(
+                            product.images![0]
+                          )
+                          .data.publicUrl
+                      }
+                      alt={product.title}
+                      width={70}
+                      height={70}
+                      className="
+                        rounded-xl
+                        object-cover
+                      "
+                    />
+
+                  )}
+
+
+                  {/* INFO */}
+
+                  <div className="min-w-0 flex-1">
+
+                    <h3 className="truncate font-semibold">
+                      {product.title}
+                    </h3>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      {product.category}
+                    </p>
+
+                    <div
+                      className="
+                        mt-3
+                        flex
+                        items-center
+                        justify-between
+                      "
+                    >
+
+                      <span className="font-bold">
+                        ৳{product.price}
+                      </span>
+
+                      <span
+                        className={`
+                          rounded-full
+                          px-3
+                          py-1
+                          text-xs
+                          font-semibold
+
+                          ${
+                            product.isTrending
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-600"
+                          }
+                        `}
+                      >
+
+                        {product.isTrending
+                          ? "🔥 Trending"
+                          : "Normal"}
+
+                      </span>
+
+                    </div>
+
+                    <div
+                      className="
+                        mt-3
+                        flex
+                        items-center
+                        justify-between
+                      "
+                    >
+
+                      <span className="text-sm text-gray-500">
+                        Stock: {product.stock}
+                      </span>
+
+                      <div className="flex gap-2">
+
+                        <button
+                          onClick={() =>
+                            handleEditProduct(
+                              product
+                            )
+                          }
+                          className="
+                            rounded-lg
+                            bg-blue-100
+                            cursor-pointer
+                            p-2
+                            text-blue-700
+                            hover:bg-blue-200
+                          "
                         >
-        
-                          <td className="px-6 py-5">
-        
-                            <div className="flex items-center gap-4">
-        
-                              {/* <Image
-                                src={product.image}
-                                alt={product.title}
-                                width={70}
-                                height={70}
-                                className="rounded-xl object-cover"
-                              /> */}
-        
-                              <p className="font-semibold">
-        
-                                {product.title}
-        
-                              </p>
-        
-                            </div>
-        
-                          </td>
-        
-                          <td className="px-6">
-        
-                            {product.category}
-        
-                          </td>
-        
-                          <td className="px-6 font-semibold">
-        
-                            ৳{product.price}
-        
-                          </td>
-        
-                          <td className="px-6">
-        
-                            {product.stock}
-        
-                          </td>
-        
-                          <td className="px-6">
-        
-                            <span
-                              className={`rounded-full px-3 py-1 text-sm font-semibold
-        
-                              ${
-                                product.stock > 0
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-        
-                              {/* {product.status} */}
-        
-                            </span>
-        
-                          </td>
-        
-                          <td>
-        
-                            <div className="flex justify-center gap-3">
-        
-                              <button className="rounded-lg bg-blue-100 p-2 text-blue-700 hover:bg-blue-200" onClick={() => setOpen(true)}>
-        
-                                <Pencil size={18} />
-        
-                              </button>
-        
-                              <button className="rounded-lg bg-red-100 p-2 text-red-700 hover:bg-red-200">
-        
-                                <Trash2 size={18} />
-        
-                              </button>
-        
-                            </div>
-        
-                          </td>
-        
-                        </tr>
-        
-                      ))}
-        
-                    </tbody>
-        
-                  </table>
-        
+                          <Pencil size={18} />
+                        </button>
+
+                        <button
+                        onClick={()=>{
+                          setDeleteModalOpen(true)
+                          setProductToDelete(product)
+                        }}
+                          className="
+                            rounded-lg
+                            cursor-pointer
+                            bg-red-100
+                            p-2
+                            text-red-700
+                            hover:bg-red-200
+                          "
+                        >
+                          <Trash2 size={18} />
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
                 </div>
 
               </div>
-        
-            </section>
-        <ProductModal
-      handleAddProduct={handleAddProduct}
-  open={open}
-  onClose={() => setOpen(false)}
+
+            )
+          )}
+
+        </div>
+
+
+        {/* ======================================================
+                         NO MOBILE RESULTS
+        ====================================================== */}
+
+        {filteredProducts.length === 0 && (
+
+          <div
+            className="
+              rounded-2xl
+              border
+              bg-white
+              p-10
+              text-center
+              text-gray-500
+              lg:hidden
+            "
+          >
+            No products found.
+          </div>
+
+        )}
+
+
+        {/* ======================================================
+                         DESKTOP TABLE
+        ====================================================== */}
+
+        <div
+          className="
+            hidden
+            overflow-hidden
+            rounded-2xl
+            border
+            bg-white
+            shadow-sm
+            lg:block
+          "
+        >
+
+          <div className="overflow-x-auto">
+
+            <table className="w-full">
+
+              <thead>
+
+                <tr className="border-b bg-gray-50">
+
+                  <th className="px-6 py-4 text-left">
+                    Product
+                  </th>
+
+                  <th className="px-6 py-4 text-left">
+                    Category
+                  </th>
+
+                  <th className="px-6 py-4 text-left">
+                    Price
+                  </th>
+
+                  <th className="px-6 py-4 text-left">
+                    Stock
+                  </th>
+
+                  <th className="px-6 py-4 text-left">
+                    Status
+                  </th>
+
+                  <th className="px-6 py-4 text-center">
+                    Action
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                {filteredProducts.map(
+                  (product) => (
+
+                    <tr
+                      key={product.id}
+                      className="
+                        border-b
+                        hover:bg-gray-50
+                      "
+                    >
+
+                      {/* PRODUCT */}
+
+                      <td className="px-6 py-5">
+
+                        <div className="flex items-center gap-4">
+
+                          {product.images!?.length > 0 && (
+
+                            <div
+                              className="
+                                relative
+                                h-14
+                                w-14
+                                shrink-0
+                                overflow-hidden
+                                rounded-xl
+                              "
+                            >
+
+                              <Image
+                                src={
+                                  supabase.storage
+                                    .from("Products")
+                                    .getPublicUrl(
+                                      product.images![0]
+                                    )
+                                    .data.publicUrl
+                                }
+                                alt={product.title}
+                                fill
+                                className="object-cover"
+                              />
+
+                            </div>
+
+                          )}
+
+                          <p className="font-semibold">
+                            {product.title}
+                          </p>
+
+                        </div>
+
+                      </td>
+
+
+                      {/* CATEGORY */}
+
+                      <td className="px-6">
+                        {product.category}
+                      </td>
+
+
+                      {/* PRICE */}
+
+                      <td className="px-6 font-semibold">
+                        ৳{product.price}
+                      </td>
+
+
+                      {/* STOCK */}
+
+                      <td
+                        className={`
+                          px-6
+
+                          ${
+                            product.stock === 0
+                              ? "font-semibold text-red-500"
+                              : ""
+                          }
+                        `}
+                      >
+                        {product.stock}
+                      </td>
+
+
+                      {/* STATUS */}
+
+                      <td className="px-6">
+
+                        <span
+                          className={`
+                            rounded-full
+                            px-3
+                            py-1
+                            text-sm
+                            font-semibold
+
+                            ${
+                              product.isTrending
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-600"
+                            }
+                          `}
+                        >
+
+                          {product.isTrending
+                            ? "🔥 Trending"
+                            : "Normal"}
+
+                        </span>
+
+                      </td>
+
+
+                      {/* ACTION */}
+
+                      <td>
+
+                        <div
+                          className="
+                            flex
+                            justify-center
+                            gap-3
+                          "
+                        >
+
+                          <button
+                            onClick={() =>
+                              handleEditProduct(
+                                product
+                              )
+                            }
+                            className="
+                            cursor-pointer
+                              rounded-lg
+                              bg-blue-100
+                              p-2
+                              text-blue-700
+                                cursor-pointer
+                              hover:bg-blue-200
+                            "
+                          >
+                            <Pencil size={18} />
+                          </button>
+
+
+                          <button
+                          onClick={()=>{
+                            setDeleteModalOpen(true)
+                            setProductToDelete(product)
+                          }}
+                            className="
+                              rounded-lg
+                              bg-red-100
+                              p-2
+                              text-red-700
+                              hover:bg-red-200
+                              cursor-pointer
+                            "
+                          >
+                            <Trash2 size={18} />
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+
+        {/* ======================================================
+                         NO DESKTOP RESULTS
+        ====================================================== */}
+
+        {filteredProducts.length === 0 && (
+
+          <div
+            className="
+              mt-4
+              hidden
+              rounded-2xl
+              border
+              bg-white
+              p-10
+              text-center
+              text-gray-500
+              lg:block
+            "
+          >
+            No products found.
+          </div>
+
+        )}
+
+      </section>
+
+
+      {/* ========================================================
+                           PRODUCT MODAL
+      ======================================================== */}
+
+      <ProductModal
+        handleAddProduct={
+          handleSaveProduct
+        }
+
+        open={open}
+
+        onClose={() => {
+
+          setOpen(false);
+
+          setEditingProduct(null);
+
+        }}
+
+        editingProduct={
+          editingProduct
+        }
+      />
+
+
+      {/* ========================================================
+                            ERROR TOAST
+      ======================================================== */}
+
+      {error && (
+
+        <Toast
+          type="error"
+          message={error}
+          onClose={() =>
+            setError(null)
+          }
+        />
+
+      )}
+
+
+      {/* ========================================================
+                          SUCCESS TOAST
+      ======================================================== */}
+
+      {success && (
+
+        <Toast
+          type="success"
+          message={success!}
+          onClose={() =>
+            setSuccess(null)
+          }
+        />
+
+      )}
+
+      <DeleteWarning
+  open={deleteModalOpen}
+  title="Delete Product?"
+  message={`Are you sure you want to delete "${productToDelete?.title}"? This action cannot be undone.`}
+  onCancel={() => {
+    setDeleteModalOpen(false);
+    setProductToDelete(null);
+  }}
+  onConfirm={handleDelete}
 />
 
-{error && (
-  <Toast
-    type="error"
-    message={error}
-    onClose={() => setError(null)}
-  />
-)}
+    </>
 
-{succuess && (
-  <Toast
-    type="success"
-    message="Product creation successfull"
-    onClose={() => setSuccess(false)}
-  />
-)}
-            </>
-    )
-}
+  );
+};
+
+
 export default Products;
