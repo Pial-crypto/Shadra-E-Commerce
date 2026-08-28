@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Heart, Eye, ShoppingCart, Star } from "lucide-react";
 import Link from "next/link";
 import { Product } from "@/types/product";
+import { supabase } from "@/lib/supabase";
 
 interface ProductGridProps {
   product: Product;
@@ -22,11 +23,18 @@ export const ProductGrid = ({ product }: ProductGridProps) => {
       <div className="relative h-72 bg-gray-100">
 
         <span className="absolute left-4 top-4 z-20 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold">
-          {product.discount}
+          {product.oldPrice > product.price && (
+  <span className="text-red-500 font-semibold">
+    {Math.round(
+      ((product.oldPrice - product.price) / product.oldPrice) * 100
+    )}
+    % OFF
+  </span>
+)}
         </span>
 
         <span className="absolute right-4 top-4 z-20 bg-yellow-500 text-black text-xs px-3 py-1 rounded-full font-bold">
-          {product.badge}
+          {"Trending"}
         </span>
 
         <div className="absolute right-4 top-20 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition duration-300 z-20">
@@ -40,7 +48,12 @@ export const ProductGrid = ({ product }: ProductGridProps) => {
         </div>
 
         <Image
-          src={product.image}
+          src={     supabase.storage
+                                    .from("Products")
+                                    .getPublicUrl(
+                                      product.images![0]
+                                    )
+                                    .data.publicUrl}
           alt={product.title}
           fill
           className="object-cover group-hover:scale-110 transition duration-500"

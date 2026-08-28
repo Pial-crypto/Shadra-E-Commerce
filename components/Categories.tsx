@@ -8,6 +8,8 @@ import Link from "next/link";
 
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { slugify } from "@/lib/slugify";
+import { categoryCount } from "@/types/categoryCount";
 
 /* ============================================================
                         CATEGORY DATA
@@ -15,62 +17,51 @@ import { ArrowRight } from "lucide-react";
 
 const categories = [
   {
-    title: "Power Banks",
+    title: "Power Bank",
     image:
       "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=600",
-    items: "25 Products",
+    items: "",
   },
   {
     title: "Chargers",
     image:
       "https://images.unsplash.com/photo-1609592806596-b43bada2f2cb?w=600",
-    items: "18 Products",
+    items: "",
   },
   {
-    title: "Earbuds",
+    title: "Gaming",
     image:
       "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=600",
-    items: "31 Products",
+    items: "",
   },
   {
-    title: "Headphones",
+    title: "Audio",
     image:
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600",
-    items: "15 Products",
+    items: "",
   },
-  {
-    title: "Smart Watches",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600",
-    items: "22 Products",
-  },
-  {
-    title: "LED Lamps",
-    image:
-      "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=600",
-    items: "12 Products",
-  },
-  {
-    title: "Bluetooth Speakers",
-    image:
-      "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=600",
-    items: "19 Products",
-  },
+
   {
     title: "Accessories",
     image:
       "https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?w=600",
-    items: "45 Products",
+    items: "",
   },
 ];
-const getSlug = (title: string) =>
-  title.toLowerCase().replace(/\s+/g, "-");
+// const getSlug = (title: string) =>
+//   title.toLowerCase().replace(/\s+/g, "-");
 
 /* ============================================================
                         COMPONENT
 ============================================================ */
 
-export default function Categories() {
+export default function Categories(
+{categoryCount}
+:{
+categoryCount:categoryCount[]
+}) {
+console.log("passed category count", categoryCount[0])
+
   return (
     <section className="py-20">
 
@@ -114,47 +105,41 @@ export default function Categories() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 
-          {categories.map((category, index) => (
+       {categoryCount.map((catResult, index) => {
+  const category = categories[index];
 
-           <Link
-  key={index}
-  href={`/category/${getSlug(category.title)}`}
-  className="bg-white rounded-3xl shadow hover:shadow-2xl transition duration-300 overflow-hidden group block cursor-pointer"
->
-  {/* Card */}
+  return (
+    <Link
+      key={catResult.category}
+      href={`/category/${slugify(catResult.category)}`}
+      className="bg-white rounded-3xl shadow hover:shadow-2xl transition duration-300 overflow-hidden group block cursor-pointer"
+    >
+      <div className="relative h-56 overflow-hidden">
+        <Image
+          src={category.image}
+          alt={category.title}
+          fill
+          className="object-cover group-hover:scale-110 transition duration-500"
+        />
+      </div>
 
-  <div className="relative h-56 overflow-hidden">
+      <div className="p-6">
+        <h3 className="text-xl font-bold">
+          {catResult.category}
+        </h3>
 
-    <Image
-      src={category.image}
-      alt={category.title}
-      fill
-      className="object-cover group-hover:scale-110 transition duration-500"
-    />
+        <p className="mt-2 text-gray-500">
+          {catResult._count._all} items
+        </p>
 
-    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition" />
-
-  </div>
-
-  <div className="p-6">
-
-    <h3 className="text-xl font-bold">
-      {category.title}
-    </h3>
-
-    <p className="mt-2 text-gray-500">
-      {category.items}
-    </p>
-
-    <div className="mt-5 flex items-center gap-2 font-semibold text-yellow-500 transition-all group-hover:gap-4">
-      Explore
-      <ArrowRight size={18} />
-    </div>
-
-  </div>
-</Link>
-
-          ))}
+        <div className="mt-5 flex items-center gap-2 font-semibold text-yellow-500">
+          Explore
+          <ArrowRight size={18} />
+        </div>
+      </div>
+    </Link>
+  );
+})}
 
         </div>
 

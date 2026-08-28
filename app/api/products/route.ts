@@ -19,13 +19,22 @@ import {slugify} from "../../../lib/slugify"
 
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  const [products, categoryCount] = await Promise.all([
+  prisma.product.findMany({
+    // take: 20,
+    // skip: 0,
+  }),
 
-    return NextResponse.json(products);
+  prisma.product.groupBy({
+    by: ["category"],
+    _count: {
+      _all: true,
+    },
+  }),
+]);
+
+
+    return NextResponse.json({products,categoryCount});
   } catch (error) {
     console.error(error);
 

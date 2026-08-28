@@ -17,6 +17,7 @@ import {
 import { ProductGrid } from "./ProductGrid";
 import Link from "next/link";
 import { ProductListing } from "./ProductListing";
+import { Product } from "@/types/product";
 
 /* ============================================================
                         PRODUCT DATA
@@ -116,7 +117,7 @@ const products = [
                     COMPONENT
 ============================================================ */
 
-export default function ProductSection() {
+export default function ProductSection({products}:{products:Product[]}) {
   return (
     <section id="trending" className="py-24 bg-white">
 
@@ -162,7 +163,7 @@ export default function ProductSection() {
                     PRODUCT GRID
         ==================================================== */}
 
-        <ProductListing></ProductListing>
+        <ProductListing products={products}></ProductListing>
 
       </div>
 
